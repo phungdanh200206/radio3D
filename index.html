@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mô Phỏng 3D Máy Phát Băng Cassette Mini (MB-001)</title>
+  <link rel="stylesheet" href="./src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <!-- Official SoundCloud Widget API -->
+  <script src="https://w.soundcloud.com/player/api.js"></script>
+</head>
+<body class="light-theme">
+  <div id="app">
+    <!-- 3D Three.js Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Header Navigation & Branding -->
+    <header class="header-bar">
+      <div class="header-left">
+        <div class="header-title-row">
+          <span class="title-badge">CAD 1:1</span>
+          <h1 class="main-title">MÁY PHÁT BĂNG CASSETTE MINI</h1>
+        </div>
+        <div class="header-sub-row">
+          <span>Bản vẽ: <strong>MB-001</strong></span>
+          <span>•</span>
+          <span class="sub-item-author">Người vẽ: <strong>Bùi Thị Bảo Ngọc</strong></span>
+          <span>•</span>
+          <span>Tỷ lệ: <strong>1:1 (mm)</strong></span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Aesthetic Color Swatches Selector Bar -->
+        <div class="theme-swatch-bar" title="Chọn màu sắc cho Radio">
+          <button class="swatch-btn active" data-theme="oak" title="Gỗ Sồi Cổ Điển">
+            <span class="swatch-dot" style="background: #cda073;"></span>
+            <span class="swatch-label">Gỗ Sồi</span>
+          </button>
+
+          <button class="swatch-btn" data-theme="walnut" title="Gỗ Óc Chó & Đồng Thau">
+            <span class="swatch-dot" style="background: #6e432d;"></span>
+            <span class="swatch-label">Gỗ Óc Chó</span>
+          </button>
+
+          <button class="swatch-btn" data-theme="summer" title="Mùa Hè Retro (Đỏ San Hô & Vàng)">
+            <span class="swatch-dot" style="background: #e6503f;"></span>
+            <span class="swatch-label">Mùa Hè</span>
+          </button>
+
+          <button class="swatch-btn" data-theme="seafoam" title="Seafoam Breeze (Xanh Bạc Hà)">
+            <span class="swatch-dot" style="background: #38a3a5;"></span>
+            <span class="swatch-label">Seafoam</span>
+          </button>
+
+          <button class="swatch-btn" data-theme="midnight" title="Midnight Plum (Tam Thái Tử)">
+            <span class="swatch-dot" style="background: #1b1931; border: 1px solid #ed9e59;"></span>
+            <span class="swatch-label">Midnight</span>
+          </button>
+
+          <button class="swatch-btn" data-theme="nordic" title="Trắng Sứ Bắc Âu">
+            <span class="swatch-dot" style="background: #f8fafc; border: 1px solid #ccc;"></span>
+            <span class="swatch-label">Trắng Sứ</span>
+          </button>
+        </div>
+
+        <!-- Music Drawer Button -->
+        <button id="btn-music-drawer" class="glass-btn music-player-btn" title="Mở Trình phát nhạc">
+          <div class="wave-bars" id="header-wave-bars">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+          </div>
+          <span id="music-btn-text">Phát Nhạc</span>
+        </button>
+
+        <!-- Light / Dark Mode Toggle -->
+        <button id="btn-theme-toggle" class="glass-btn" title="Chuyển giao diện Sáng / Tối">
+          <svg id="icon-theme-dark" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="icon-theme-light" style="display:block;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span id="theme-text">Giao diện Tối</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MUSIC DRAWER MODAL (With Volume Slider) -->
+    <div id="music-drawer" class="music-drawer">
+      <div class="drawer-header">
+        <div class="drawer-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+          <span>Trình Phát Nhạc Cassette</span>
+        </div>
+        <button id="btn-close-music" class="card-close-btn">&times;</button>
+      </div>
+
+      <!-- Current Track Info Box -->
+      <div class="track-info-box">
+        <div id="drawer-track-title" class="track-title">Người Dưng (Album Tam Thái Tử)</div>
+        <div id="drawer-track-artist" class="track-artist">Jack - J97 • Tam Thái Tử No.2</div>
+      </div>
+
+      <!-- Music Playback Controls -->
+      <div class="music-controls-row">
+        <button id="btn-music-prev" class="ctrl-btn" title="Bài trước">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="19 20 9 12 19 4 19 20"></polygon>
+            <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="3"></line>
+          </svg>
+        </button>
+
+        <button id="btn-music-play" class="ctrl-btn play-main" title="Phát / Tạm dừng">
+          <svg id="icon-play-main" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <svg id="icon-pause-main" style="display:none;" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </button>
+
+        <button id="btn-music-next" class="ctrl-btn" title="Bài tiếp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 4 15 12 5 20 5 4"></polygon>
+            <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="3"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Volume Control Slider Row -->
+      <div class="volume-control-box">
+        <button id="btn-mute-toggle" class="vol-btn" title="Bật / Tắt tiếng">
+          <svg id="icon-vol-high" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="icon-vol-mute" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <input id="slider-volume" type="range" min="0" max="100" value="70" class="volume-slider" title="Âm lượng" />
+        <span id="label-volume-val" class="vol-val">70%</span>
+      </div>
+
+      <!-- SoundCloud Player & Input Section (API Integration) -->
+      <div class="soundcloud-section">
+        <div class="soundcloud-header-row">
+          <div class="soundcloud-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff5500">
+              <path d="M1.175 12.225c-.047 0-.094-.023-.117-.07-.023-.07-.023-.14 0-.21l.374-1.636c.047-.187.187-.304.374-.304s.327.117.374.304l.374 1.636c.023.07.023.14 0 .21-.023.047-.07.07-.117.07h-.888zm1.868 1.494c-.047 0-.094-.023-.117-.07-.023-.07-.023-.14 0-.21l.654-3.13c.047-.187.187-.304.374-.304s.327.117.374.304l.654 3.13c.023.07.023.14 0 .21-.023.047-.07.07-.117.07h-1.822zm1.868 1.12c-.047 0-.094-.023-.117-.07-.023-.07-.023-.14 0-.21l.934-4.25c.047-.187.187-.304.374-.304s.327.117.374.304l.934 4.25c.023.07.023.14 0 .21-.023.047-.07.07-.117.07h-2.382zm14.364-5.975c-.28 0-.537.047-.794.14-.374-1.798-1.96-3.153-3.85-3.153-.84 0-1.611.28-2.242.747-.327-.42-.794-.7-1.33-.794l-.327 1.47c.443.094.794.397.934.817.117.35.047.747-.187 1.05-.187.234-.467.374-.77.374h-.14l-.374 1.635h.514c.047 0 .094.023.117.07.023.07.023.14 0 .21l-.934 4.25c-.023.07-.07.094-.117.094h6.812c2.616 0 4.742-2.126 4.742-4.742 0-2.663-2.15-4.82-4.79-4.82z"/>
+            </svg>
+            <span>SoundCloud API Player</span>
+          </div>
+          <span class="sc-badge-live">Live Link</span>
+        </div>
+
+        <!-- URL Input Field & Load Button -->
+        <div class="sc-input-row">
+          <input id="input-soundcloud-url" type="text" placeholder="Dán link bài hát SoundCloud vào đây..." class="sc-input" value="https://soundcloud.com/qu-ph-m-573788822/jack-j97-ng-i-d-ng-album-tam" />
+          <button id="btn-load-soundcloud" class="sc-load-btn" title="Tải & Phát bài này">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Tải</span>
+          </button>
+        </div>
+
+        <!-- Embedded SoundCloud Widget Player -->
+        <div class="sc-widget-box" id="sc-widget-box">
+          <iframe id="sc-widget-iframe" width="100%" height="130" scrolling="no" frameborder="no" allow="autoplay; encrypted-media"
+            src="https://w.soundcloud.com/player/?url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F2391600861&color=%23ff5500&auto_play=false&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Playlist Selection -->
+      <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--accent-primary); margin-bottom: 8px;">
+        Danh Sách Ca Khúc
+      </div>
+      <div id="playlist-container" class="playlist-container">
+        <!-- Generated by JS -->
+      </div>
+
+      <!-- Spotify Embed Section -->
+      <div class="spotify-section">
+        <div class="spotify-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+          </svg>
+          <span>Spotify Playlist: Jack - J97</span>
+        </div>
+        <div class="spotify-embed-box">
+          <iframe style="border-radius:12px" src="https://open.spotify.com/embed/artist/3D5qY1a6fB6QO0hX4g7KqR?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Floating Preset Views & Controls -->
+    <div class="bottom-controls">
+      <!-- Exploded View Slider Bar -->
+      <div class="exploded-panel">
+        <button id="btn-toggle-explode" class="view-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14h6m-6-4h6m4-6v6m4-6v6M4 20h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"></path>
+          </svg>
+          <span>Phối cảnh tách rời</span>
+        </button>
+
+        <div class="slider-container">
+          <span class="exploded-label">Tách chi tiết:</span>
+          <input id="slider-explode" type="range" min="0" max="100" value="0" class="range-slider" />
+          <span id="label-explode-val" class="slider-val">0%</span>
+        </div>
+      </div>
+
+      <!-- Preset Views Bar -->
+      <div class="control-pill">
+        <button class="view-btn active" data-view="default">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          </svg>
+          <span>Toàn cảnh 360°</span>
+        </button>
+
+        <button class="view-btn" data-view="front">
+          <span>Mặt trước</span>
+        </button>
+
+        <button class="view-btn" data-view="back">
+          <span>Mặt sau</span>
+        </button>
+
+        <button class="view-btn" data-view="top">
+          <span>Mặt trên</span>
+        </button>
+
+        <button class="view-btn" data-view="right">
+          <span>Mặt bên phải</span>
+        </button>
+
+        <div class="divider"></div>
+
+        <!-- Auto Rotate Toggle -->
+        <button id="btn-auto-rotate" class="view-btn" title="Tự động xoay quanh vật thể">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>Tự xoay</span>
+        </button>
+
+        <!-- Reset Camera -->
+        <button id="btn-reset-view" class="view-btn" title="Đặt lại góc nhìn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+          <span>Đặt lại</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Click-to-Inspect HUD Modal -->
+    <div id="inspect-card" class="inspect-card">
+      <div class="card-header">
+        <div>
+          <span id="inspect-badge" class="card-badge">STT 1</span>
+          <h2 id="inspect-title" class="card-title">Khung gỗ tự nhiên</h2>
+        </div>
+        <button id="btn-close-inspect" class="card-close-btn" title="Đóng bảng số đo">&times;</button>
+      </div>
+
+      <div class="card-body">
+        <div class="info-row">
+          <span class="info-label">Vật liệu chế tạo</span>
+          <span id="inspect-material" class="info-value">Gỗ tự nhiên (Vân gỗ sồi tự nhiên)</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Số lượng bản vẽ</span>
+          <span id="inspect-qty" class="info-value">1 cái</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Kích thước chuẩn (CAD MB-001)</span>
+          <span id="inspect-dims" class="info-value highlight">150 × 110 × 90 mm (Bo góc R20)</span>
+        </div>
+
+        <div class="info-row">
+          <span class="info-label">Ghi chú kỹ thuật & gia công</span>
+          <span id="inspect-notes" class="info-value">Kích thước ngoài 150×110×90 mm, bo góc R20 mm. Thành dày 16 mm, lòng trong khoang trước 118×72 mm. Gia công CNC mịn bóng phủ mờ.</span>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Số đo 3D độc lập đã hiển thị trên chi tiết</span>
+      </div>
+    </div>
+
+    <!-- Mouse Hover Cursor Tooltip -->
+    <div id="hover-tooltip" class="hover-tooltip">Chi tiết</div>
+
+    <!-- Helpful Hints for Marketing Presentation -->
+    <div class="help-hint">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>Kéo 360° • Click chi tiết xem số đo • Chọn bảng màu Radio ở trên</span>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
