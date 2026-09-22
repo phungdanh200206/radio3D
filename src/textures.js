@@ -356,3 +356,518 @@ export function createBrushedMetalTexture() {
   texture.wrapT = THREE.RepeatWrapping;
   return texture;
 }
+
+/**
+ * 7 Unique Artistic Photo Textures for Album Tam Thái Tử (Jack - J97)
+ * High-definition 35mm Film Slide Frame with Sprocket Holes and Artwork
+ */
+export function createAlbumPhotoTextures() {
+  const textures = [];
+  for (let i = 0; i < 7; i++) {
+    textures.push(createSingleAlbumPhotoTexture(i));
+  }
+  return textures;
+}
+
+export function createSingleAlbumPhotoTexture(index) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 680;
+  const ctx = canvas.getContext('2d');
+
+  // 1. Film Strip Frame Background (Matte Charcoal with film border)
+  ctx.fillStyle = '#141416';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 2. Film Sprocket Holes (Lỗ răng cưa phim 35mm ở mép trên và mép dưới)
+  const numHoles = 14;
+  const holeWidth = 26;
+  const holeHeight = 36;
+  const holeRadius = 6;
+  ctx.fillStyle = '#08080a';
+  ctx.strokeStyle = '#28282c';
+  ctx.lineWidth = 1.5;
+
+  for (let h = 0; h < numHoles; h++) {
+    const x = 50 + h * (canvas.width - 100) / (numHoles - 1) - holeWidth / 2;
+    // Top hole
+    drawRoundedRect(ctx, x, 14, holeWidth, holeHeight, holeRadius);
+    ctx.fill();
+    ctx.stroke();
+
+    // Bottom hole
+    drawRoundedRect(ctx, x, canvas.height - 50, holeWidth, holeHeight, holeRadius);
+    ctx.fill();
+    ctx.stroke();
+  }
+
+  // 3. Film Markings & Frame Stamp
+  ctx.font = 'bold 13px "Courier New", monospace';
+  ctx.fillStyle = '#e67e22'; // Vintage Kodak orange ink
+  ctx.textAlign = 'left';
+  ctx.fillText(`▶ 0${index + 1}A`, 35, 75);
+  ctx.textAlign = 'right';
+  ctx.fillText('KODAK PORTRA 400', canvas.width - 35, 75);
+
+  ctx.fillStyle = '#888892';
+  ctx.textAlign = 'center';
+  ctx.font = '11px "Courier New", monospace';
+  ctx.fillText('• 35MM STEREO REEL • TAM THÁI TỬ (J97) • SAFETY FILM •', canvas.width / 2, canvas.height - 18);
+
+  // 4. Central Photo Canvas Frame (880 x 480 px)
+  const px = 60;
+  const py = 90;
+  const pw = canvas.width - 120;
+  const ph = canvas.height - 170;
+
+  ctx.save();
+  drawRoundedRect(ctx, px, py, pw, ph, 10);
+  ctx.clip();
+
+  // Draw Specific Artwork based on track index
+  switch (index) {
+    case 0:
+      // Track 1: Người Dưng (Night City Cinematic)
+      drawArtworkNguoiDung(ctx, px, py, pw, ph);
+      break;
+    case 1:
+      // Track 2: Lưu Niên (Sunset Pampas Reeds)
+      drawArtworkLuuNien(ctx, px, py, pw, ph);
+      break;
+    case 2:
+      // Track 3: Anh Yêu Em (Twilight Hearts & Chinese Calligraphy)
+      drawArtworkAnhYeuEm(ctx, px, py, pw, ph);
+      break;
+    case 3:
+      // Track 4: Hoa Trong Đá (Quartz Stone & Kintsugi Rose)
+      drawArtworkHoaTrongDa(ctx, px, py, pw, ph);
+      break;
+    case 4:
+      // Track 5: Nát Tan Cõi Lòng (Moody Water Ripples & Shattered Crystal)
+      drawArtworkNatTanCoiLong(ctx, px, py, pw, ph);
+      break;
+    case 5:
+      // Track 6: Tam Thái Tử (Imperial Crimson & Royal Golden Dragon)
+      drawArtworkTamThaiTu(ctx, px, py, pw, ph);
+      break;
+    case 6:
+      // Track 7: Mỗi Lần Nhớ Em Là Một Ngày Mưa (Misty Emerald Rain & Umbrella)
+      drawArtworkNgayMua(ctx, px, py, pw, ph);
+      break;
+    default:
+      drawArtworkNguoiDung(ctx, px, py, pw, ph);
+  }
+
+  // Vignette overlay
+  const vigGrad = ctx.createRadialGradient(
+    px + pw / 2, py + ph / 2, pw * 0.25,
+    px + pw / 2, py + ph / 2, pw * 0.65
+  );
+  vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  vigGrad.addColorStop(1, 'rgba(0,0,0,0.55)');
+  ctx.fillStyle = vigGrad;
+  ctx.fillRect(px, py, pw, ph);
+
+  ctx.restore();
+
+  // Inner frame border
+  ctx.strokeStyle = '#383840';
+  ctx.lineWidth = 2;
+  drawRoundedRect(ctx, px, py, pw, ph, 10);
+  ctx.stroke();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+}
+
+function drawRoundedRect(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+// 1. NGƯỜI DƯNG - Đêm Thành Thị Cô Độc
+function drawArtworkNguoiDung(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0, '#090e1f');
+  g.addColorStop(0.5, '#141c3a');
+  g.addColorStop(1, '#2c1e40');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Distant glowing moon
+  ctx.fillStyle = '#fffae8';
+  ctx.beginPath();
+  ctx.arc(x + w * 0.78, y + h * 0.28, 48, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Moon halo
+  const moonGlow = ctx.createRadialGradient(x + w * 0.78, y + h * 0.28, 40, x + w * 0.78, y + h * 0.28, 120);
+  moonGlow.addColorStop(0, 'rgba(255, 250, 230, 0.45)');
+  moonGlow.addColorStop(1, 'rgba(255, 250, 230, 0)');
+  ctx.fillStyle = moonGlow;
+  ctx.fillRect(x, y, w, h);
+
+  // City skyline silhouette
+  ctx.fillStyle = '#060a16';
+  const buildings = [
+    [0.05, 0.4, 0.12], [0.15, 0.55, 0.09], [0.22, 0.35, 0.15],
+    [0.35, 0.6, 0.11], [0.44, 0.38, 0.14], [0.56, 0.52, 0.16],
+    [0.70, 0.45, 0.12], [0.80, 0.62, 0.10], [0.88, 0.42, 0.12]
+  ];
+  buildings.forEach(([bx, bh, bw]) => {
+    ctx.fillRect(x + w * bx, y + h * (1 - bh), w * bw, h * bh);
+  });
+
+  // Bokeh lights
+  for (let i = 0; i < 40; i++) {
+    const lx = x + (i * 37) % w;
+    const ly = y + h * 0.65 + (i * 19) % (h * 0.35);
+    const rad = 2 + (i % 6);
+    ctx.fillStyle = (i % 3 === 0) ? 'rgba(254, 202, 87, 0.65)' : 'rgba(255, 107, 107, 0.45)';
+    ctx.beginPath();
+    ctx.arc(lx, ly, rad, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Lone silhouette under streetlight
+  ctx.fillStyle = '#030508';
+  ctx.beginPath();
+  ctx.arc(x + w * 0.28, y + h * 0.74, 14, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(x + w * 0.28 - 10, y + h * 0.76, 20, 60);
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 38px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('NGƯỜI DƯNG', x + 50, y + h - 75);
+  ctx.fillStyle = '#f39c12';
+  ctx.font = '600 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • TRACK NO.2 • ALBUM TAM THÁI TỬ', x + 52, y + h - 45);
+}
+
+// 2. LƯU NIÊN - Hoàng Hôn Hoài Niệm & Cánh Đồng Lau
+function drawArtworkLuuNien(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0, '#2d1436');
+  g.addColorStop(0.35, '#a72c38');
+  g.addColorStop(0.65, '#e65c00');
+  g.addColorStop(1, '#f9d423');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Giant sunset sun
+  const sunG = ctx.createRadialGradient(x + w * 0.5, y + h * 0.52, 20, x + w * 0.5, y + h * 0.52, 160);
+  sunG.addColorStop(0, 'rgba(255, 255, 230, 0.95)');
+  sunG.addColorStop(0.4, 'rgba(255, 200, 80, 0.7)');
+  sunG.addColorStop(1, 'rgba(255, 120, 0, 0)');
+  ctx.fillStyle = sunG;
+  ctx.fillRect(x, y, w, h);
+
+  // Birds in flight
+  ctx.strokeStyle = 'rgba(40, 10, 20, 0.75)';
+  ctx.lineWidth = 2.5;
+  [[0.35, 0.28], [0.42, 0.24], [0.48, 0.31], [0.65, 0.22], [0.72, 0.27]].forEach(([bx, by]) => {
+    ctx.beginPath();
+    ctx.arc(x + w * bx - 8, y + h * by, 8, Math.PI * 1.1, Math.PI * 1.9);
+    ctx.arc(x + w * bx + 8, y + h * by, 8, Math.PI * 1.1, Math.PI * 1.9);
+    ctx.stroke();
+  });
+
+  // Silhouettes of pampas grass / reeds
+  ctx.strokeStyle = '#1a0808';
+  ctx.lineWidth = 1.8;
+  for (let i = 0; i < 70; i++) {
+    const rx = x + (i * 13) % w;
+    const rHeight = 90 + ((i * 17) % 110);
+    const bend = Math.sin(i) * 35;
+    ctx.beginPath();
+    ctx.moveTo(rx, y + h);
+    ctx.quadraticCurveTo(rx + bend * 0.5, y + h - rHeight * 0.6, rx + bend, y + h - rHeight);
+    ctx.stroke();
+  }
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 38px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('LƯU NIÊN', x + 50, y + h - 75);
+  ctx.fillStyle = '#ffeaa7';
+  ctx.font = '600 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • TRACK NO.4 • ALBUM TAM THÁI TỬ', x + 52, y + h - 45);
+}
+
+// 3. ANH YÊU EM (我爱你) - Lãng Mạn & Trái Tim Tím Pastel
+function drawArtworkAnhYeuEm(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x + w, y + h);
+  g.addColorStop(0, '#360940');
+  g.addColorStop(0.5, '#7b113a');
+  g.addColorStop(1, '#ff758c');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Large subtle Chinese calligraphy 我爱你 in background
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.font = 'bold 170px "KaiTi", "SimSun", serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('我爱你', x + w / 2, y + h * 0.62);
+
+  // Glowing artistic heart outline
+  ctx.strokeStyle = 'rgba(255, 230, 240, 0.85)';
+  ctx.lineWidth = 5;
+  ctx.shadowColor = '#ff2a7a';
+  ctx.shadowBlur = 24;
+
+  const hx = x + w * 0.5;
+  const hy = y + h * 0.44;
+  ctx.beginPath();
+  ctx.moveTo(hx, hy + 30);
+  ctx.bezierCurveTo(hx - 90, hy - 70, hx - 90, hy + 60, hx, hy + 110);
+  ctx.bezierCurveTo(hx + 90, hy + 60, hx + 90, hy - 70, hx, hy + 30);
+  ctx.stroke();
+  ctx.shadowBlur = 0; // reset
+
+  // Floating sparkle particles
+  for (let i = 0; i < 35; i++) {
+    const sx = x + (i * 29) % w;
+    const sy = y + (i * 23) % h;
+    ctx.fillStyle = 'rgba(255, 240, 250, 0.7)';
+    ctx.beginPath();
+    ctx.arc(sx, sy, 2 + (i % 3), 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 38px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('ANH YÊU EM (我爱你)', x + 50, y + h - 75);
+  ctx.fillStyle = '#ffccd5';
+  ctx.font = '600 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • TRACK NO.3 • ALBUM TAM THÁI TỬ', x + 52, y + h - 45);
+}
+
+// 4. HOA TRONG ĐÁ - Thạch Anh Kintsugi & Hoa Đỏ Kiên Cường
+function drawArtworkHoaTrongDa(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0, '#111418');
+  g.addColorStop(0.5, '#222831');
+  g.addColorStop(1, '#393e46');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Kintsugi Golden Veins across stone
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#f39c12';
+  ctx.shadowBlur = 15;
+
+  ctx.beginPath();
+  ctx.moveTo(x, y + h * 0.7);
+  ctx.lineTo(x + w * 0.35, y + h * 0.55);
+  ctx.lineTo(x + w * 0.5, y + h * 0.5);
+  ctx.lineTo(x + w * 0.65, y + h * 0.35);
+  ctx.lineTo(x + w, y + h * 0.2);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(x + w * 0.5, y + h * 0.5);
+  ctx.lineTo(x + w * 0.48, y + h);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Blooming red rose in the center
+  const fx = x + w * 0.5;
+  const fy = y + h * 0.45;
+
+  // Petals
+  ctx.fillStyle = '#d63031';
+  for (let p = 0; p < 8; p++) {
+    const angle = (p * Math.PI) / 4;
+    ctx.beginPath();
+    ctx.ellipse(fx + Math.cos(angle) * 26, fy + Math.sin(angle) * 26, 32, 22, angle, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // Rose center
+  ctx.fillStyle = '#e84118';
+  ctx.beginPath();
+  ctx.arc(fx, fy, 22, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#fbc531';
+  ctx.beginPath();
+  ctx.arc(fx, fy, 9, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 38px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('HOA TRONG ĐÁ', x + 50, y + h - 75);
+  ctx.fillStyle = '#f5cd79';
+  ctx.font = '600 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • TRACK NO.1 • ALBUM TAM THÁI TỬ', x + 52, y + h - 45);
+}
+
+// 5. NÁT TAN CÕI LÒNG - Sầu Muộn & Mảnh Vỡ Pha Lê
+function drawArtworkNatTanCoiLong(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0, '#050b14');
+  g.addColorStop(0.5, '#0f2027');
+  g.addColorStop(1, '#203a43');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Concentric water ripples
+  ctx.strokeStyle = 'rgba(100, 200, 255, 0.28)';
+  ctx.lineWidth = 1.5;
+  for (let r = 1; r <= 6; r++) {
+    ctx.beginPath();
+    ctx.ellipse(x + w * 0.5, y + h * 0.55, r * 45, r * 22, 0, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Shattered crystal glass shards
+  ctx.fillStyle = 'rgba(200, 235, 255, 0.25)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.lineWidth = 2;
+  const shards = [
+    [[0.42, 0.35], [0.48, 0.25], [0.45, 0.42]],
+    [[0.52, 0.30], [0.60, 0.36], [0.55, 0.46]],
+    [[0.46, 0.48], [0.54, 0.47], [0.50, 0.60]],
+    [[0.36, 0.42], [0.44, 0.46], [0.38, 0.56]],
+    [[0.58, 0.45], [0.66, 0.52], [0.59, 0.62]]
+  ];
+  shards.forEach(pts => {
+    ctx.beginPath();
+    ctx.moveTo(x + w * pts[0][0], y + h * pts[0][1]);
+    ctx.lineTo(x + w * pts[1][0], y + h * pts[1][1]);
+    ctx.lineTo(x + w * pts[2][0], y + h * pts[2][1]);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 38px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('NÁT TAN CÕI LÒNG', x + 50, y + h - 75);
+  ctx.fillStyle = '#81ecec';
+  ctx.font = '600 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • ALBUM TAM THÁI TỬ', x + 52, y + h - 45);
+}
+
+// 6. TAM THÁI TỬ - Hoàng Triều Quyền Uy & Rồng Vàng
+function drawArtworkTamThaiTu(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x + w, y + h);
+  g.addColorStop(0, '#2b0006');
+  g.addColorStop(0.4, '#7a0016');
+  g.addColorStop(0.8, '#b8860b');
+  g.addColorStop(1, '#ffc107');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Royal seal medallion
+  const cx = x + w * 0.5;
+  const cy = y + h * 0.45;
+
+  ctx.strokeStyle = '#ffd700';
+  ctx.lineWidth = 4;
+  ctx.shadowColor = '#ffa502';
+  ctx.shadowBlur = 20;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 78, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 68, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Crown symbol in gold
+  ctx.fillStyle = '#ffd700';
+  ctx.beginPath();
+  ctx.moveTo(cx - 38, cy + 22);
+  ctx.lineTo(cx - 44, cy - 18);
+  ctx.lineTo(cx - 20, cy + 2);
+  ctx.lineTo(cx, cy - 32);
+  ctx.lineTo(cx + 20, cy + 2);
+  ctx.lineTo(cx + 44, cy - 18);
+  ctx.lineTo(cx + 38, cy + 22);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 42px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('TAM THÁI TỬ', x + 50, y + h - 75);
+  ctx.fillStyle = '#ffd700';
+  ctx.font = '700 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • CA KHÚC CHỦ ĐỀ ALBUM', x + 52, y + h - 45);
+}
+
+// 7. MỖI LẦN NHỚ EM LÀ MỘT NGÀY MƯA - Mưa Rơi & Ô Nghiêng
+function drawArtworkNgayMua(ctx, x, y, w, h) {
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0, '#0c1b24');
+  g.addColorStop(0.5, '#1b3a4b');
+  g.addColorStop(1, '#2c6e69');
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+
+  // Rain streaks
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 90; i++) {
+    const rx = x + (i * 23) % w;
+    const ry = y + (i * 17) % h;
+    ctx.beginPath();
+    ctx.moveTo(rx, ry);
+    ctx.lineTo(rx - 12, ry + 28);
+    ctx.stroke();
+  }
+
+  // Silhouette of open umbrella
+  const ux = x + w * 0.52;
+  const uy = y + h * 0.44;
+
+  ctx.fillStyle = '#102027';
+  ctx.beginPath();
+  ctx.arc(ux, uy, 56, Math.PI, 0);
+  ctx.fill();
+
+  // Umbrella handle
+  ctx.strokeStyle = '#cfd8dc';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(ux, uy);
+  ctx.lineTo(ux, uy + 65);
+  ctx.arc(ux - 10, uy + 65, 10, 0, Math.PI);
+  ctx.stroke();
+
+  // Typography
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 34px "Segoe UI", sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('MỖI LẦN NHỚ EM LÀ MỘT NGÀY MƯA', x + 50, y + h - 75);
+  ctx.fillStyle = '#80ed99';
+  ctx.font = '600 16px "Segoe UI", sans-serif';
+  ctx.fillText('JACK - J97 • ALBUM TAM THÁI TỬ', x + 52, y + h - 45);
+}
+

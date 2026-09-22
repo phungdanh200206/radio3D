@@ -324,6 +324,25 @@
     <!-- Mouse Hover Cursor Tooltip -->
     <div id="hover-tooltip" class="hover-tooltip">Chi tiết</div>
 
+    <!-- Photo Film Reel Navigation Bar -->
+    <div id="photo-nav-bar" class="photo-nav-bar">
+      <button id="btn-photo-prev" class="photo-nav-btn" title="Ảnh trước (←)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="photo-nav-info">
+        <span id="photo-counter" class="photo-counter">Ảnh 1 / 7</span>
+        <span class="photo-nav-dot">•</span>
+        <span id="photo-title" class="photo-song-title">Người Dưng</span>
+      </div>
+      <button id="btn-photo-next" class="photo-nav-btn" title="Ảnh tiếp (→)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
     <!-- Helpful Hints for Marketing Presentation -->
     <div class="help-hint">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -331,8 +350,9 @@
         <line x1="12" y1="8" x2="12" y2="12"></line>
         <line x1="12" y1="16" x2="12.01" y2="16"></line>
       </svg>
-      <span>Kéo 360° • Click chi tiết xem số đo • Chọn bảng màu Radio ở trên</span>
+      <span>Kéo 360° • Click chi tiết xem số đo • ◀▶ hoặc ← → để chuyển ảnh & nhạc</span>
     </div>
+
   </div>
 
   <script type="module" src="./src/main.js"></script>

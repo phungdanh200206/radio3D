@@ -938,6 +938,87 @@ body, html {
   pointer-events: none;
 }
 
+/* ===================================================
+   PHOTO FILM REEL CAROUSEL CONTROLS
+   Floating pill bar with prev/next arrows & track title
+   =================================================== */
+.photo-nav-bar {
+  position: absolute;
+  bottom: 108px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 30px;
+  padding: 5px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--panel-shadow);
+  z-index: 30;
+  pointer-events: auto;
+  user-select: none;
+  animation: fadeInDown 0.4s ease;
+}
+
+.photo-nav-btn {
+  background: var(--btn-bg);
+  border: 1px solid transparent;
+  color: var(--text-primary);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.photo-nav-btn:hover {
+  background: var(--accent-primary);
+  color: var(--btn-active-text);
+  transform: scale(1.08);
+  box-shadow: 0 2px 10px var(--accent-glow);
+}
+
+.photo-nav-btn:active {
+  transform: scale(0.94);
+}
+
+.photo-nav-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.photo-counter {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--accent-primary);
+  letter-spacing: 0.5px;
+}
+
+.photo-nav-dot {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.photo-song-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   .header-bar {
     top: 10px;

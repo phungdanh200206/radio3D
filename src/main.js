@@ -15,7 +15,8 @@ const state = {
   isPlaying: false,
   isAutoRotating: false,
   hoveredPart: null,
-  selectedPart: null
+  selectedPart: null,
+  currentPhotoIndex: 0
 };
 
 // DOM Elements
@@ -177,8 +178,8 @@ swatchBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
     const theme = btn.getAttribute('data-theme');
     loadModel(theme);
-    if (audioPlayer) {
-      modelData.updateCassetteSticker(audioPlayer.getCurrentTrack().title);
+    if (modelData && modelData.updatePhotoTexture) {
+      modelData.updatePhotoTexture(state.currentPhotoIndex);
     }
   });
 });
@@ -190,9 +191,8 @@ const audioPlayer = new SummerAudioPlayer(
     drawerTrackTitle.textContent = track.title;
     drawerTrackArtist.textContent = `${track.artist} • ${track.genre}`;
     updatePlaylistActiveUI();
-    if (modelData && modelData.updateCassetteSticker) {
-      modelData.updateCassetteSticker(track.title);
-    }
+    // Update photo counter label to match track index
+    updatePhotoNavUI(audioPlayer.currentIndex);
   },
   // onPlayStateChange callback
   (isPlaying) => {
@@ -207,11 +207,6 @@ const audioPlayer = new SummerAudioPlayer(
 // Attach SoundCloud Widget
 if (scWidgetIframe) {
   audioPlayer.attachSoundCloudWidget(scWidgetIframe);
-}
-
-// Initial cassette sticker update
-if (modelData && modelData.updateCassetteSticker) {
-  modelData.updateCassetteSticker(audioPlayer.getCurrentTrack().title);
 }
 
 // Volume Slider Event
@@ -310,12 +305,77 @@ btnMusicPlay.addEventListener('click', () => {
 });
 
 btnMusicNext.addEventListener('click', () => {
-  audioPlayer.next();
+  navigatePhoto(1);
 });
 
 btnMusicPrev.addEventListener('click', () => {
-  audioPlayer.prev();
+  navigatePhoto(-1);
 });
+
+// ==========================================
+// Photo Film Reel Navigation System
+// ==========================================
+
+// Song title array for display (matches TRACK_PLAYLIST order)
+const PHOTO_SONG_TITLES = [
+  'Người Dưng',
+  'Lưu Niên',
+  'Anh Yêu Em',
+  'Hoa Trong Đá',
+  'Nát Tan Cõi Lòng',
+  'Tam Thái Tử',
+  'Mỗi Lần Nhớ Em'
+];
+
+const btnPhotoPrev = document.getElementById('btn-photo-prev');
+const btnPhotoNext = document.getElementById('btn-photo-next');
+const photoCounter = document.getElementById('photo-counter');
+const photoTitleLabel = document.getElementById('photo-title');
+
+function updatePhotoNavUI(index) {
+  state.currentPhotoIndex = index;
+  if (photoCounter) photoCounter.textContent = `Ảnh ${index + 1} / 7`;
+  if (photoTitleLabel) photoTitleLabel.textContent = PHOTO_SONG_TITLES[index] || '';
+}
+
+function navigatePhoto(direction) {
+  const total = 7;
+  const newIndex = ((state.currentPhotoIndex + direction) % total + total) % total;
+
+  if (modelData && modelData.animateFilmRoll) {
+    modelData.animateFilmRoll(direction, () => {
+      if (modelData.updatePhotoTexture) modelData.updatePhotoTexture(newIndex);
+    });
+  }
+
+  audioPlayer.selectTrack(newIndex);
+  updatePhotoNavUI(newIndex);
+  updatePlaylistActiveUI();
+}
+
+if (btnPhotoPrev) {
+  btnPhotoPrev.addEventListener('click', () => navigatePhoto(-1));
+}
+if (btnPhotoNext) {
+  btnPhotoNext.addEventListener('click', () => navigatePhoto(1));
+}
+
+// Keyboard arrow key navigation
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    navigatePhoto(-1);
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    navigatePhoto(1);
+  }
+});
+
+// Initialize photo nav UI
+updatePhotoNavUI(0);
+
+
 
 // 6. Exploded View Controller
 function updateExplodedView(progress) {

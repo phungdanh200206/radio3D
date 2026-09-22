@@ -1,12 +1,14 @@
 import * as THREE from 'three';
+import gsap from 'gsap';
 import {
   createRealisticWoodTexture,
   createRealisticWoodBumpTexture,
   createRealisticWoodRoughnessTexture,
   createKnurlBumpTexture,
-  createCassetteLabelTexture,
   createBrushedMetalTexture,
-  createGlassSheenTexture
+  createGlassSheenTexture,
+  createAlbumPhotoTextures,
+  createSingleAlbumPhotoTexture
 } from './textures.js';
 
 /**
@@ -495,118 +497,231 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   });
 
   // ==========================================
-  // PART 4: BĂNG CASSETTE (100 x 63 x 12 mm tiêu chuẩn)
+  // PART 4: CUỘN ẢNH & PHIM HOÀI NIỆM (100 x 63 x 14 mm)
   // ==========================================
-  const cassetteGroup = new THREE.Group();
-  cassetteGroup.name = 'BangCassetteGroup';
+  const cuonAnhGroup = new THREE.Group();
+  cuonAnhGroup.name = 'CuonAnhGroup';
 
-  const cassShape = createRoundedRectShape(100, 63, 4);
+  // Generate all 7 album photo textures
+  const photoTextures = createAlbumPhotoTextures();
 
-  const cwHole = new THREE.Path();
-  const cwh_w = 48 / 2;
-  const cwh_h = 18 / 2;
-  cwHole.moveTo(-cwh_w, -cwh_h);
-  cwHole.lineTo(cwh_w, -cwh_h);
-  cwHole.lineTo(cwh_w, cwh_h);
-  cwHole.lineTo(-cwh_w, cwh_h);
-  cassShape.holes.push(cwHole);
-
-  const reelHoleL = new THREE.Path();
-  reelHoleL.absarc(-21, 0, 8, 0, Math.PI * 2, true);
-  cassShape.holes.push(reelHoleL);
-
-  const reelHoleR = new THREE.Path();
-  reelHoleR.absarc(21, 0, 8, 0, Math.PI * 2, true);
-  cassShape.holes.push(reelHoleR);
-
-  const cassGeom = new THREE.ExtrudeGeometry(cassShape, {
-    depth: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.6,
-    bevelSize: 0.6,
-    bevelSegments: 2
+  // Chrome/silver spool material
+  const spoolChromeMat = new THREE.MeshStandardMaterial({
+    color: 0xd0d4da,
+    roughness: 0.18,
+    metalness: 0.92
   });
-  cassGeom.center();
-
-  const cassBodyMat = new THREE.MeshStandardMaterial({
-    color: activeTheme === 'midnight' ? 0x1b1931 : 0x222222,
-    roughness: 0.35,
-    metalness: 0.1
+  const spoolAccentMat = new THREE.MeshStandardMaterial({
+    color: activeTheme === 'midnight' || activeTheme === 'walnut' ? 0xed9e59 : 0xf0a030,
+    roughness: 0.25,
+    metalness: 0.8
   });
 
-  const cassFrontStickerMat = new THREE.MeshStandardMaterial({
-    map: cassetteLabel,
-    roughness: 0.3,
-    metalness: 0.05
-  });
+  // === LEFT SPOOL ROLLER ===
+  const leftSpoolGroup = new THREE.Group();
+  leftSpoolGroup.position.set(-21, 0, 0);
 
-  const cassBodyMesh = new THREE.Mesh(cassGeom, [cassBodyMat, cassFrontStickerMat]);
-  cassetteGroup.add(cassBodyMesh);
+  // Outer rim
+  const leftRimGeom = new THREE.CylinderGeometry(9, 9, 13, 32, 1, true);
+  leftRimGeom.rotateX(Math.PI / 2);
+  leftSpoolGroup.add(new THREE.Mesh(leftRimGeom, spoolChromeMat));
 
-  // 2 Rotating Spools
-  const spools = [];
-  function createCassetteSpool(posX) {
-    const spoolGroup = new THREE.Group();
-    spoolGroup.position.set(posX, 0, 0);
+  // Inner hub
+  const leftHubGeom = new THREE.CylinderGeometry(4.5, 4.5, 14, 16);
+  leftHubGeom.rotateX(Math.PI / 2);
+  leftSpoolGroup.add(new THREE.Mesh(leftHubGeom, spoolAccentMat));
 
-    const spoolColor = activeTheme === 'midnight' || activeTheme === 'walnut' ? 0xed9e59 : 0xffffff;
-    const spoolRimGeom = new THREE.CylinderGeometry(7.5, 7.5, 11.5, 32, 1, true);
-    spoolRimGeom.rotateX(Math.PI / 2);
-    const spoolRimMesh = new THREE.Mesh(
-      spoolRimGeom,
-      new THREE.MeshStandardMaterial({ color: spoolColor, roughness: 0.35 })
-    );
-    spoolGroup.add(spoolRimMesh);
-
-    for (let k = 0; k < 6; k++) {
-      const spokeGeom = new THREE.BoxGeometry(1.4, 2.2, 11.2);
-      const spokeMesh = new THREE.Mesh(
-        spokeGeom,
-        new THREE.MeshStandardMaterial({ color: spoolColor, roughness: 0.35 })
-      );
-      const angle = (k * Math.PI) / 3;
-      spokeMesh.position.set(Math.cos(angle) * 5.2, Math.sin(angle) * 5.2, 0);
-      spokeMesh.rotation.z = angle;
-      spoolGroup.add(spokeMesh);
-    }
-
-    cassetteGroup.add(spoolGroup);
-    spools.push(spoolGroup);
-    return spoolGroup;
+  // Spokes (5)
+  for (let k = 0; k < 5; k++) {
+    const angle = (k * Math.PI * 2) / 5;
+    const spokeGeom = new THREE.BoxGeometry(1.4, 4.2, 13);
+    const spk = new THREE.Mesh(spokeGeom, spoolChromeMat);
+    spk.position.set(Math.cos(angle) * 6.5, Math.sin(angle) * 6.5, 0);
+    spk.rotation.z = angle;
+    leftSpoolGroup.add(spk);
   }
 
-  const spoolLeft = createCassetteSpool(-21);
-  const spoolRight = createCassetteSpool(21);
+  // Front & back face disc
+  const discGeom = new THREE.CylinderGeometry(9, 9, 1.5, 32);
+  discGeom.rotateX(Math.PI / 2);
+  const discFront = new THREE.Mesh(discGeom, spoolChromeMat);
+  discFront.position.z = 6.8;
+  leftSpoolGroup.add(discFront);
+  const discBack = discFront.clone();
+  discBack.position.z = -6.8;
+  leftSpoolGroup.add(discBack);
 
-  // Magnetic tape rolls
-  const tapeRollLGeom = new THREE.CylinderGeometry(14, 14, 8, 32);
-  tapeRollLGeom.rotateX(Math.PI / 2);
-  const tapeRollMat = new THREE.MeshStandardMaterial({ color: 0x3d2314, roughness: 0.8 });
-  const tapeRollL = new THREE.Mesh(tapeRollLGeom, tapeRollMat);
-  tapeRollL.position.set(-21, 0, 0);
-  cassetteGroup.add(tapeRollL);
+  cuonAnhGroup.add(leftSpoolGroup);
 
-  const tapeRollRGeom = new THREE.CylinderGeometry(11, 11, 8, 32);
-  tapeRollRGeom.rotateX(Math.PI / 2);
-  const tapeRollR = new THREE.Mesh(tapeRollRGeom, tapeRollMat);
-  tapeRollR.position.set(21, 0, 0);
-  cassetteGroup.add(tapeRollR);
+  // === RIGHT SPOOL ROLLER (slightly smaller — film advances from L to R) ===
+  const rightSpoolGroup = new THREE.Group();
+  rightSpoolGroup.position.set(21, 0, 0);
 
-  cassetteGroup.position.set(0, 1, 28);
+  const rightRimGeom = new THREE.CylinderGeometry(7.5, 7.5, 13, 32, 1, true);
+  rightRimGeom.rotateX(Math.PI / 2);
+  rightSpoolGroup.add(new THREE.Mesh(rightRimGeom, spoolChromeMat));
+
+  const rightHubGeom = new THREE.CylinderGeometry(4, 4, 14, 16);
+  rightHubGeom.rotateX(Math.PI / 2);
+  rightSpoolGroup.add(new THREE.Mesh(rightHubGeom, spoolAccentMat));
+
+  for (let k = 0; k < 5; k++) {
+    const angle = (k * Math.PI * 2) / 5;
+    const spokeGeom = new THREE.BoxGeometry(1.2, 3.2, 13);
+    const spk = new THREE.Mesh(spokeGeom, spoolChromeMat);
+    spk.position.set(Math.cos(angle) * 5.5, Math.sin(angle) * 5.5, 0);
+    spk.rotation.z = angle;
+    rightSpoolGroup.add(spk);
+  }
+
+  const discGeomR = new THREE.CylinderGeometry(7.5, 7.5, 1.5, 32);
+  discGeomR.rotateX(Math.PI / 2);
+  const discFrontR = new THREE.Mesh(discGeomR, spoolChromeMat);
+  discFrontR.position.z = 6.8;
+  rightSpoolGroup.add(discFrontR);
+  const discBackR = discFrontR.clone();
+  discBackR.position.z = -6.8;
+  rightSpoolGroup.add(discBackR);
+
+  cuonAnhGroup.add(rightSpoolGroup);
+
+  // === FILM STRIP BACKING (thin dark strip connecting spools) ===
+  const filmStripMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1210,
+    roughness: 0.85,
+    metalness: 0.05
+  });
+  const filmStripGeom = new THREE.BoxGeometry(46, 16, 2.5);
+  const filmStrip = new THREE.Mesh(filmStripGeom, filmStripMat);
+  filmStrip.position.set(0, 0, -1.5);
+  cuonAnhGroup.add(filmStrip);
+
+  // Small sprocket hole accents on the film strip
+  for (let side = -1; side <= 1; side += 2) {
+    for (let xi = -1; xi <= 1; xi++) {
+      const hGeom = new THREE.BoxGeometry(5, 3.5, 3.5);
+      const hMesh = new THREE.Mesh(hGeom, new THREE.MeshStandardMaterial({ color: 0x0a0807, roughness: 1.0 }));
+      hMesh.position.set(xi * 15, side * 5, -0.5);
+      cuonAnhGroup.add(hMesh);
+    }
+  }
+
+  // === CENTRAL PHOTO DISPLAY PLANE ===
+  const photoGeom = new THREE.PlaneGeometry(82, 54);
+  const photoMat = new THREE.MeshStandardMaterial({
+    map: photoTextures[0],
+    roughness: 0.3,
+    metalness: 0.0,
+    transparent: false
+  });
+  photoMat.map.minFilter = THREE.LinearFilter;
+  photoMat.map.magFilter = THREE.LinearFilter;
+
+  const photoMesh = new THREE.Mesh(photoGeom, photoMat);
+  photoMesh.position.set(0, 0, 7.5);
+  cuonAnhGroup.add(photoMesh);
+
+  // Thin matte frame border around the photo
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0x0e0c0b, roughness: 0.9 });
+  const frameParts = [
+    { w: 90, h: 4, x: 0, y: 29 },
+    { w: 90, h: 4, x: 0, y: -29 },
+    { w: 4, h: 62, x: 45, y: 0 },
+    { w: 4, h: 62, x: -45, y: 0 }
+  ];
+  frameParts.forEach(f => {
+    const fg = new THREE.BoxGeometry(f.w, f.h, 3);
+    const fm = new THREE.Mesh(fg, frameMat);
+    fm.position.set(f.x, f.y, 7.5);
+    cuonAnhGroup.add(fm);
+  });
+
+  cuonAnhGroup.position.set(0, 1, 28);
 
   registerPart({
-    group: cassetteGroup,
-    id: 'bang_cassette',
+    group: cuonAnhGroup,
+    id: 'cuon_anh',
     stt: 4,
-    name: 'Băng cassette ("Best Wishes")',
-    material: 'Nhựa cao cấp (ABS)',
+    name: 'Cơ cấu Cuộn ảnh & Phim hoài niệm',
+    material: 'Trục lăn hợp kim nhôm / Phim ảnh lưu niệm',
     quantity: '1',
-    dimensions: '100 × 63 × 12 mm (Kích thước tiêu chuẩn)',
-    notes: 'Băng cassette tiêu chuẩn 100×63×12 mm với nhãn hoài niệm, tích hợp 2 cuộn bánh xe quay (spools) quay đồng bộ khi phát nhạc.',
+    dimensions: '100 × 63 × 14 mm',
+    notes: 'Cơ cấu 2 cuộn lăn kim loại chạy phim ảnh hoài niệm 35mm. Mỗi bài nhạc gắn liền với 1 tấm ảnh nghệ thuật. Nhấn ◀ / ▶ để chuyển ảnh & bài hát.',
     category: 'Môi chất phát',
     explodedOffset: new THREE.Vector3(0, 0, 85),
-    dimBox: { w: 100, h: 63, d: 12 }
+    dimBox: { w: 100, h: 63, d: 14 }
   });
+
+  // Spool references (same interface as before — used in animation loop)
+  const spools = [leftSpoolGroup, rightSpoolGroup];
+
+  // Photo state
+  let currentPhotoIdx = 0;
+  let isAnimating = false;
+
+  /**
+   * updatePhotoTexture(index) — swap the photo displayed on photoMesh
+   */
+  function updatePhotoTexture(index) {
+    currentPhotoIdx = index;
+    const tex = photoTextures[index] || createSingleAlbumPhotoTexture(index);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    photoMesh.material.map = tex;
+    photoMesh.material.needsUpdate = true;
+  }
+
+  /**
+   * animateFilmRoll(direction, onComplete)
+   * direction: -1 (prev) or +1 (next)
+   * Spins spools, slides photo out then swaps texture, slides back in
+   */
+  function animateFilmRoll(direction, onComplete) {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const slideOutX = direction * -88;
+    const tl = gsap.timeline({
+      onComplete: () => {
+        isAnimating = false;
+      }
+    });
+
+    // Phase 1: slide photo out
+    tl.to(photoMesh.position, {
+      x: slideOutX,
+      duration: 0.28,
+      ease: 'power2.in'
+    });
+
+    // Phase 2: spin spools fast during transition
+    tl.to([leftSpoolGroup.rotation, rightSpoolGroup.rotation], {
+      z: direction > 0 ? '-=3.5' : '+=3.5',
+      duration: 0.28,
+      ease: 'power2.inOut'
+    }, '<');
+
+    // Phase 3: swap texture when off-screen, reset position
+    tl.call(() => {
+      if (onComplete) onComplete();
+      photoMesh.position.x = -slideOutX;
+    });
+
+    // Phase 4: slide new photo in
+    tl.to(photoMesh.position, {
+      x: 0,
+      duration: 0.32,
+      ease: 'power2.out'
+    });
+
+    // Phase 5: another spool spin burst as film settles
+    tl.to([leftSpoolGroup.rotation, rightSpoolGroup.rotation], {
+      z: direction > 0 ? '-=1.2' : '+=1.2',
+      duration: 0.32,
+      ease: 'power3.out'
+    }, '<');
+  }
+
 
   // ==========================================
   // PART 5: GIÁ ĐỠ BĂNG CASSETTE (101 x 64 x 3 mm)
@@ -917,14 +1032,12 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   return {
     rootGroup,
     partsList,
-    spools: [spoolLeft, spoolRight],
+    spools,
     gears: [gearLargeGroup, gearMedGroup, gearSmallGroup],
     knob: knobGroup,
-    cassBodyMesh,
-    updateCassetteSticker: (newTitle) => {
-      const newTexture = createCassetteLabelTexture(newTitle, activeTheme);
-      cassBodyMesh.material[1].map = newTexture;
-      cassBodyMesh.material[1].needsUpdate = true;
-    }
+    photoMesh,
+    photoTextures,
+    updatePhotoTexture,
+    animateFilmRoll
   };
 }
