@@ -358,12 +358,76 @@ export function createBrushedMetalTexture() {
 }
 
 /**
- * 7 Unique Artistic Photo Textures for Album Tam Thái Tử (Jack - J97)
- * High-definition 35mm Film Slide Frame with Sprocket Holes and Artwork
+ * Official Real Concept Photos of Jack - J97 (Album Tam Thái Tử)
+ * Framed into authentic 35mm Film Slide Frame with Sprocket Holes and Kodak Portra 400 Markings
  */
+
+const _imageCache = {};
+
+export function preloadPhoto(url) {
+  if (_imageCache[url]) return _imageCache[url];
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = url;
+  _imageCache[url] = img;
+  return img;
+}
+
+export const ALBUM_SLIDE_CONFIGS = [
+  {
+    title: 'Người Dưng',
+    subtitle: 'ALBUM TAM THÁI TỬ • NO.2',
+    imageUrl: '/photos/jack_water.png',
+    frameCode: '01A',
+    crop: null // Full cinematic shot: Jack in dark water at night
+  },
+  {
+    title: 'Lưu Niên',
+    subtitle: 'ALBUM TAM THÁI TỬ • NO.4',
+    imageUrl: '/photos/jack_red_suit.jpg',
+    frameCode: '02A',
+    crop: null // Full shot: Jack in burgundy suit on wooden dock
+  },
+  {
+    title: 'Anh Yêu Em (我爱你)',
+    subtitle: 'ALBUM TAM THÁI TỬ • NO.3',
+    imageUrl: '/photos/jack_boat_raw.png',
+    frameCode: '03A',
+    crop: { sx: 0, sy: 60, sw: 640, sh: 360 } // Cropped clean: removes 60px black bars top/bottom
+  },
+  {
+    title: 'Hoa Trong Đá',
+    subtitle: 'ALBUM TAM THÁI TỬ • NO.1',
+    imageUrl: '/photos/jack_red_suit.jpg',
+    frameCode: '04A',
+    crop: { sx: 220, sy: 70, sw: 580, sh: 480 } // Portrait close-up on Jack in red suit
+  },
+  {
+    title: 'Nát Tan Cõi Lòng',
+    subtitle: 'ALBUM TAM THÁI TỬ',
+    imageUrl: '/photos/jack_water.png',
+    frameCode: '05A',
+    crop: { sx: 280, sy: 60, sw: 500, sh: 460 } // Emotional close-up on Jack rising from dark water
+  },
+  {
+    title: 'Tam Thái Tử',
+    subtitle: 'CA KHÚC CHỦ ĐỀ • J97 PROMOTION',
+    imageUrl: '/photos/jack_red_suit.jpg',
+    frameCode: '06A',
+    crop: null // Full official concept photo with Tam Thái Tử title
+  },
+  {
+    title: 'Mỗi Lần Nhớ Em Là Một Ngày Mưa',
+    subtitle: 'ALBUM TAM THÁI TỬ',
+    imageUrl: '/photos/jack_water.png',
+    frameCode: '07A',
+    crop: null // Wide dark water shot
+  }
+];
+
 export function createAlbumPhotoTextures() {
   const textures = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < ALBUM_SLIDE_CONFIGS.length; i++) {
     textures.push(createSingleAlbumPhotoTexture(i));
   }
   return textures;
@@ -375,110 +439,129 @@ export function createSingleAlbumPhotoTexture(index) {
   canvas.height = 680;
   const ctx = canvas.getContext('2d');
 
-  // 1. Film Strip Frame Background (Matte Charcoal with film border)
-  ctx.fillStyle = '#141416';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // 2. Film Sprocket Holes (Lỗ răng cưa phim 35mm ở mép trên và mép dưới)
-  const numHoles = 14;
-  const holeWidth = 26;
-  const holeHeight = 36;
-  const holeRadius = 6;
-  ctx.fillStyle = '#08080a';
-  ctx.strokeStyle = '#28282c';
-  ctx.lineWidth = 1.5;
-
-  for (let h = 0; h < numHoles; h++) {
-    const x = 50 + h * (canvas.width - 100) / (numHoles - 1) - holeWidth / 2;
-    // Top hole
-    drawRoundedRect(ctx, x, 14, holeWidth, holeHeight, holeRadius);
-    ctx.fill();
-    ctx.stroke();
-
-    // Bottom hole
-    drawRoundedRect(ctx, x, canvas.height - 50, holeWidth, holeHeight, holeRadius);
-    ctx.fill();
-    ctx.stroke();
-  }
-
-  // 3. Film Markings & Frame Stamp
-  ctx.font = 'bold 13px "Courier New", monospace';
-  ctx.fillStyle = '#e67e22'; // Vintage Kodak orange ink
-  ctx.textAlign = 'left';
-  ctx.fillText(`▶ 0${index + 1}A`, 35, 75);
-  ctx.textAlign = 'right';
-  ctx.fillText('KODAK PORTRA 400', canvas.width - 35, 75);
-
-  ctx.fillStyle = '#888892';
-  ctx.textAlign = 'center';
-  ctx.font = '11px "Courier New", monospace';
-  ctx.fillText('• 35MM STEREO REEL • TAM THÁI TỬ (J97) • SAFETY FILM •', canvas.width / 2, canvas.height - 18);
-
-  // 4. Central Photo Canvas Frame (880 x 480 px)
-  const px = 60;
-  const py = 90;
-  const pw = canvas.width - 120;
-  const ph = canvas.height - 170;
-
-  ctx.save();
-  drawRoundedRect(ctx, px, py, pw, ph, 10);
-  ctx.clip();
-
-  // Draw Specific Artwork based on track index
-  switch (index) {
-    case 0:
-      // Track 1: Người Dưng (Night City Cinematic)
-      drawArtworkNguoiDung(ctx, px, py, pw, ph);
-      break;
-    case 1:
-      // Track 2: Lưu Niên (Sunset Pampas Reeds)
-      drawArtworkLuuNien(ctx, px, py, pw, ph);
-      break;
-    case 2:
-      // Track 3: Anh Yêu Em (Twilight Hearts & Chinese Calligraphy)
-      drawArtworkAnhYeuEm(ctx, px, py, pw, ph);
-      break;
-    case 3:
-      // Track 4: Hoa Trong Đá (Quartz Stone & Kintsugi Rose)
-      drawArtworkHoaTrongDa(ctx, px, py, pw, ph);
-      break;
-    case 4:
-      // Track 5: Nát Tan Cõi Lòng (Moody Water Ripples & Shattered Crystal)
-      drawArtworkNatTanCoiLong(ctx, px, py, pw, ph);
-      break;
-    case 5:
-      // Track 6: Tam Thái Tử (Imperial Crimson & Royal Golden Dragon)
-      drawArtworkTamThaiTu(ctx, px, py, pw, ph);
-      break;
-    case 6:
-      // Track 7: Mỗi Lần Nhớ Em Là Một Ngày Mưa (Misty Emerald Rain & Umbrella)
-      drawArtworkNgayMua(ctx, px, py, pw, ph);
-      break;
-    default:
-      drawArtworkNguoiDung(ctx, px, py, pw, ph);
-  }
-
-  // Vignette overlay
-  const vigGrad = ctx.createRadialGradient(
-    px + pw / 2, py + ph / 2, pw * 0.25,
-    px + pw / 2, py + ph / 2, pw * 0.65
-  );
-  vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vigGrad.addColorStop(1, 'rgba(0,0,0,0.55)');
-  ctx.fillStyle = vigGrad;
-  ctx.fillRect(px, py, pw, ph);
-
-  ctx.restore();
-
-  // Inner frame border
-  ctx.strokeStyle = '#383840';
-  ctx.lineWidth = 2;
-  drawRoundedRect(ctx, px, py, pw, ph, 10);
-  ctx.stroke();
-
   const texture = new THREE.CanvasTexture(canvas);
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+
+  const config = ALBUM_SLIDE_CONFIGS[index % ALBUM_SLIDE_CONFIGS.length];
+  const img = preloadPhoto(config.imageUrl);
+
+  function drawSlide(image) {
+    // 1. Film Strip Frame Background (Matte Charcoal with film border)
+    ctx.fillStyle = '#111114';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 2. Film Sprocket Holes (Lỗ răng cưa phim 35mm ở mép trên và mép dưới)
+    const numHoles = 14;
+    const holeWidth = 26;
+    const holeHeight = 36;
+    const holeRadius = 6;
+    ctx.fillStyle = '#060608';
+    ctx.strokeStyle = '#252528';
+    ctx.lineWidth = 1.5;
+
+    for (let h = 0; h < numHoles; h++) {
+      const x = 50 + (h * (canvas.width - 100)) / (numHoles - 1) - holeWidth / 2;
+      // Top hole
+      drawRoundedRect(ctx, x, 14, holeWidth, holeHeight, holeRadius);
+      ctx.fill();
+      ctx.stroke();
+
+      // Bottom hole
+      drawRoundedRect(ctx, x, canvas.height - 50, holeWidth, holeHeight, holeRadius);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // 3. Film Markings & Frame Stamp
+    ctx.font = 'bold 13px "Courier New", monospace';
+    ctx.fillStyle = '#f59e0b'; // Vintage Kodak Portra orange-gold ink
+    ctx.textAlign = 'left';
+    ctx.fillText(`▶ ${config.frameCode}`, 35, 75);
+    ctx.textAlign = 'right';
+    ctx.fillText('KODAK PORTRA 400', canvas.width - 35, 75);
+
+    ctx.fillStyle = '#9ca3af';
+    ctx.textAlign = 'center';
+    ctx.font = '11px "Courier New", monospace';
+    ctx.fillText(
+      `• 35MM STEREO REEL • ${config.title.toUpperCase()} • ${config.subtitle} •`,
+      canvas.width / 2,
+      canvas.height - 18
+    );
+
+    // 4. Central Photo Canvas Frame (880 x 480 px, 16:9 ratio)
+    const px = 60;
+    const py = 90;
+    const pw = canvas.width - 120; // 904 px
+    const ph = canvas.height - 170; // 510 px
+
+    ctx.save();
+    drawRoundedRect(ctx, px, py, pw, ph, 10);
+    ctx.clip();
+
+    if (image && image.complete && image.naturalWidth > 0) {
+      if (config.crop) {
+        ctx.drawImage(
+          image,
+          config.crop.sx,
+          config.crop.sy,
+          config.crop.sw,
+          config.crop.sh,
+          px,
+          py,
+          pw,
+          ph
+        );
+      } else {
+        ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, px, py, pw, ph);
+      }
+    } else {
+      // Elegant placeholder while loading
+      ctx.fillStyle = '#1c192b';
+      ctx.fillRect(px, py, pw, ph);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 22px "Inter", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(config.title, px + pw / 2, py + ph / 2);
+    }
+
+    // Soft photographic vignette overlay for authentic analog film look
+    const vigGrad = ctx.createRadialGradient(
+      px + pw / 2,
+      py + ph / 2,
+      pw * 0.3,
+      px + pw / 2,
+      py + ph / 2,
+      pw * 0.68
+    );
+    vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+    vigGrad.addColorStop(1, 'rgba(0,0,0,0.4)');
+    ctx.fillStyle = vigGrad;
+    ctx.fillRect(px, py, pw, ph);
+
+    ctx.restore();
+
+    // Inner frame border
+    ctx.strokeStyle = '#383840';
+    ctx.lineWidth = 2;
+    drawRoundedRect(ctx, px, py, pw, ph, 10);
+    ctx.stroke();
+
+    texture.needsUpdate = true;
+  }
+
+  // Draw immediately if cached, or on load
+  if (img.complete && img.naturalWidth > 0) {
+    drawSlide(img);
+  } else {
+    drawSlide(null);
+    img.addEventListener('load', () => {
+      drawSlide(img);
+    });
+  }
+
   return texture;
 }
 

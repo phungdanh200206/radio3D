@@ -378,9 +378,27 @@ body, html {
   background: var(--card-highlight);
   border: 1px solid var(--panel-border);
   border-radius: 14px;
-  padding: 12px;
+  padding: 10px 14px;
   margin-bottom: 12px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.drawer-track-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1.5px solid var(--accent-primary);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+
+.track-text-group {
+  flex: 1;
+  min-width: 0;
 }
 
 .track-title {
@@ -995,6 +1013,16 @@ body, html {
   padding: 0 6px;
   font-size: 13px;
   white-space: nowrap;
+}
+
+.photo-nav-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--accent-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  flex-shrink: 0;
 }
 
 .photo-counter {

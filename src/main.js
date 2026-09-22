@@ -5,6 +5,7 @@ import { buildCassettePlayerModel } from './modelBuilder.js';
 import { CADDimensionsOverlay } from './dimensionsOverlay.js';
 import { createStudioEnvironment } from './environment.js';
 import { SummerAudioPlayer, TRACK_PLAYLIST } from './audioPlayer.js';
+import { ALBUM_SLIDE_CONFIGS } from './textures.js';
 
 // Application State
 const state = {
@@ -331,11 +332,20 @@ const btnPhotoPrev = document.getElementById('btn-photo-prev');
 const btnPhotoNext = document.getElementById('btn-photo-next');
 const photoCounter = document.getElementById('photo-counter');
 const photoTitleLabel = document.getElementById('photo-title');
+const photoThumb = document.getElementById('photo-nav-thumb');
+const drawerTrackThumb = document.getElementById('drawer-track-thumb');
 
 function updatePhotoNavUI(index) {
   state.currentPhotoIndex = index;
+  const cfg = ALBUM_SLIDE_CONFIGS[index % ALBUM_SLIDE_CONFIGS.length];
   if (photoCounter) photoCounter.textContent = `Ảnh ${index + 1} / 7`;
-  if (photoTitleLabel) photoTitleLabel.textContent = PHOTO_SONG_TITLES[index] || '';
+  if (photoTitleLabel) photoTitleLabel.textContent = cfg ? cfg.title : PHOTO_SONG_TITLES[index] || '';
+  if (photoThumb && cfg) {
+    photoThumb.src = cfg.imageUrl;
+  }
+  if (drawerTrackThumb && cfg) {
+    drawerTrackThumb.src = cfg.imageUrl;
+  }
 }
 
 function navigatePhoto(direction) {
