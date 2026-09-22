@@ -517,32 +517,32 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     metalness: 0.8
   });
 
-  // === LEFT SPOOL ROLLER ===
+  // === LEFT SPOOL ROLLER (Left film reel) ===
   const leftSpoolGroup = new THREE.Group();
-  leftSpoolGroup.position.set(-21, 0, 0);
+  leftSpoolGroup.position.set(-52, 0, 0);
 
   // Outer rim
-  const leftRimGeom = new THREE.CylinderGeometry(9, 9, 13, 32, 1, true);
+  const leftRimGeom = new THREE.CylinderGeometry(8, 8, 13, 32, 1, true);
   leftRimGeom.rotateX(Math.PI / 2);
   leftSpoolGroup.add(new THREE.Mesh(leftRimGeom, spoolChromeMat));
 
   // Inner hub
-  const leftHubGeom = new THREE.CylinderGeometry(4.5, 4.5, 14, 16);
+  const leftHubGeom = new THREE.CylinderGeometry(4, 4, 14, 16);
   leftHubGeom.rotateX(Math.PI / 2);
   leftSpoolGroup.add(new THREE.Mesh(leftHubGeom, spoolAccentMat));
 
   // Spokes (5)
   for (let k = 0; k < 5; k++) {
     const angle = (k * Math.PI * 2) / 5;
-    const spokeGeom = new THREE.BoxGeometry(1.4, 4.2, 13);
+    const spokeGeom = new THREE.BoxGeometry(1.2, 3.8, 13);
     const spk = new THREE.Mesh(spokeGeom, spoolChromeMat);
-    spk.position.set(Math.cos(angle) * 6.5, Math.sin(angle) * 6.5, 0);
+    spk.position.set(Math.cos(angle) * 5.8, Math.sin(angle) * 5.8, 0);
     spk.rotation.z = angle;
     leftSpoolGroup.add(spk);
   }
 
   // Front & back face disc
-  const discGeom = new THREE.CylinderGeometry(9, 9, 1.5, 32);
+  const discGeom = new THREE.CylinderGeometry(8, 8, 1.2, 32);
   discGeom.rotateX(Math.PI / 2);
   const discFront = new THREE.Mesh(discGeom, spoolChromeMat);
   discFront.position.z = 6.8;
@@ -553,11 +553,11 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
 
   cuonAnhGroup.add(leftSpoolGroup);
 
-  // === RIGHT SPOOL ROLLER (slightly smaller — film advances from L to R) ===
+  // === RIGHT SPOOL ROLLER (Right film reel) ===
   const rightSpoolGroup = new THREE.Group();
-  rightSpoolGroup.position.set(21, 0, 0);
+  rightSpoolGroup.position.set(52, 0, 0);
 
-  const rightRimGeom = new THREE.CylinderGeometry(7.5, 7.5, 13, 32, 1, true);
+  const rightRimGeom = new THREE.CylinderGeometry(8, 8, 13, 32, 1, true);
   rightRimGeom.rotateX(Math.PI / 2);
   rightSpoolGroup.add(new THREE.Mesh(rightRimGeom, spoolChromeMat));
 
@@ -567,14 +567,14 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
 
   for (let k = 0; k < 5; k++) {
     const angle = (k * Math.PI * 2) / 5;
-    const spokeGeom = new THREE.BoxGeometry(1.2, 3.2, 13);
+    const spokeGeom = new THREE.BoxGeometry(1.2, 3.8, 13);
     const spk = new THREE.Mesh(spokeGeom, spoolChromeMat);
-    spk.position.set(Math.cos(angle) * 5.5, Math.sin(angle) * 5.5, 0);
+    spk.position.set(Math.cos(angle) * 5.8, Math.sin(angle) * 5.8, 0);
     spk.rotation.z = angle;
     rightSpoolGroup.add(spk);
   }
 
-  const discGeomR = new THREE.CylinderGeometry(7.5, 7.5, 1.5, 32);
+  const discGeomR = new THREE.CylinderGeometry(8, 8, 1.2, 32);
   discGeomR.rotateX(Math.PI / 2);
   const discFrontR = new THREE.Mesh(discGeomR, spoolChromeMat);
   discFrontR.position.z = 6.8;
@@ -585,33 +585,26 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
 
   cuonAnhGroup.add(rightSpoolGroup);
 
-  // === FILM STRIP BACKING (thin dark strip connecting spools) ===
+  // === FILM STRIP BACKING ===
   const filmStripMat = new THREE.MeshStandardMaterial({
-    color: 0x1a1210,
+    color: 0x14100e,
     roughness: 0.85,
     metalness: 0.05
   });
-  const filmStripGeom = new THREE.BoxGeometry(46, 16, 2.5);
+  const filmStripGeom = new THREE.BoxGeometry(108, 68, 2);
   const filmStrip = new THREE.Mesh(filmStripGeom, filmStripMat);
-  filmStrip.position.set(0, 0, -1.5);
+  filmStrip.position.set(0, 0, -1.2);
   cuonAnhGroup.add(filmStrip);
 
-  // Small sprocket hole accents on the film strip
-  for (let side = -1; side <= 1; side += 2) {
-    for (let xi = -1; xi <= 1; xi++) {
-      const hGeom = new THREE.BoxGeometry(5, 3.5, 3.5);
-      const hMesh = new THREE.Mesh(hGeom, new THREE.MeshStandardMaterial({ color: 0x0a0807, roughness: 1.0 }));
-      hMesh.position.set(xi * 15, side * 5, -0.5);
-      cuonAnhGroup.add(hMesh);
-    }
-  }
-
-  // === CENTRAL PHOTO DISPLAY PLANE ===
-  const photoGeom = new THREE.PlaneGeometry(82, 54);
+  // === CENTRAL PHOTO DISPLAY PLANE (Fills 106 x 66 mm inside 118 x 72 mm window) ===
+  const photoGeom = new THREE.PlaneGeometry(106, 66);
   const photoMat = new THREE.MeshStandardMaterial({
     map: photoTextures[0],
-    roughness: 0.3,
-    metalness: 0.0,
+    roughness: 0.2,
+    metalness: 0.02,
+    emissive: new THREE.Color(0xffffff),
+    emissiveMap: photoTextures[0],
+    emissiveIntensity: 0.3, // Soft internal backlit glow
     transparent: false
   });
   photoMat.map.minFilter = THREE.LinearFilter;
@@ -621,13 +614,18 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   photoMesh.position.set(0, 0, 7.5);
   cuonAnhGroup.add(photoMesh);
 
-  // Thin matte frame border around the photo
-  const frameMat = new THREE.MeshStandardMaterial({ color: 0x0e0c0b, roughness: 0.9 });
+  // Internal warm backlight behind the glass to illuminate the photo
+  const photoLight = new THREE.PointLight(0xfff8ee, 1.2, 160);
+  photoLight.position.set(0, 0, 16);
+  cuonAnhGroup.add(photoLight);
+
+  // Sleek black & titanium matte frame border around the photo
+  const frameMat = new THREE.MeshStandardMaterial({ color: 0x161413, roughness: 0.8, metalness: 0.2 });
   const frameParts = [
-    { w: 90, h: 4, x: 0, y: 29 },
-    { w: 90, h: 4, x: 0, y: -29 },
-    { w: 4, h: 62, x: 45, y: 0 },
-    { w: 4, h: 62, x: -45, y: 0 }
+    { w: 110, h: 3, x: 0, y: 34.5 },
+    { w: 110, h: 3, x: 0, y: -34.5 },
+    { w: 3, h: 72, x: 54.5, y: 0 },
+    { w: 3, h: 72, x: -54.5, y: 0 }
   ];
   frameParts.forEach(f => {
     const fg = new THREE.BoxGeometry(f.w, f.h, 3);
@@ -642,14 +640,14 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     group: cuonAnhGroup,
     id: 'cuon_anh',
     stt: 4,
-    name: 'Cơ cấu Cuộn ảnh & Phim hoài niệm (Jack - J97)',
-    material: 'Trục lăn hợp kim nhôm / Phim ảnh thật Tam Thái Tử',
+    name: 'Khung Cuộn Ảnh Phát Nhạc (Jack - J97)',
+    material: 'Bộ cuộn phim hợp kim nhôm / Đèn nền LED / Ảnh thật',
     quantity: '1',
-    dimensions: '100 × 63 × 14 mm (Khung phim 35mm)',
-    notes: 'Cơ cấu 2 trục cuộn hợp kim nhôm xoay cơ khí chạy phim ảnh 35mm. Hiển thị trực tiếp bộ ảnh thật của Jack - J97 trong Album Tam Thái Tử đồng bộ cùng nhạc SoundCloud.',
-    category: 'Môi chất phát',
+    dimensions: '106 × 66 × 14 mm (Khung nhìn 118 × 72 mm)',
+    notes: 'Khung cuộn ảnh tích hợp trong khoang phát nhạc 3D. Mỗi bài hát tương ứng với 1 tấm ảnh thật của Jack - J97 (Album Tam Thái Tử). Chuyển ảnh sẽ tự động đổi nhạc tương ứng.',
+    category: 'Khung ảnh phát nhạc',
     explodedOffset: new THREE.Vector3(0, 0, 85),
-    dimBox: { w: 100, h: 63, d: 14 }
+    dimBox: { w: 106, h: 66, d: 14 }
   });
 
   // Spool references (same interface as before — used in animation loop)
@@ -668,6 +666,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
     photoMesh.material.map = tex;
+    photoMesh.material.emissiveMap = tex;
     photoMesh.material.needsUpdate = true;
   }
 
@@ -680,7 +679,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     if (isAnimating) return;
     isAnimating = true;
 
-    const slideOutX = direction * -88;
+    const slideOutX = direction * -110;
     const tl = gsap.timeline({
       onComplete: () => {
         isAnimating = false;
@@ -690,14 +689,14 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     // Phase 1: slide photo out
     tl.to(photoMesh.position, {
       x: slideOutX,
-      duration: 0.28,
+      duration: 0.25,
       ease: 'power2.in'
     });
 
     // Phase 2: spin spools fast during transition
     tl.to([leftSpoolGroup.rotation, rightSpoolGroup.rotation], {
-      z: direction > 0 ? '-=3.5' : '+=3.5',
-      duration: 0.28,
+      z: direction > 0 ? '-=4.5' : '+=4.5',
+      duration: 0.25,
       ease: 'power2.inOut'
     }, '<');
 
@@ -710,14 +709,14 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     // Phase 4: slide new photo in
     tl.to(photoMesh.position, {
       x: 0,
-      duration: 0.32,
+      duration: 0.3,
       ease: 'power2.out'
     });
 
     // Phase 5: another spool spin burst as film settles
     tl.to([leftSpoolGroup.rotation, rightSpoolGroup.rotation], {
-      z: direction > 0 ? '-=1.2' : '+=1.2',
-      duration: 0.32,
+      z: direction > 0 ? '-=1.5' : '+=1.5',
+      duration: 0.3,
       ease: 'power3.out'
     }, '<');
   }

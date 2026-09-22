@@ -334,6 +334,33 @@ const photoCounter = document.getElementById('photo-counter');
 const photoTitleLabel = document.getElementById('photo-title');
 const photoThumb = document.getElementById('photo-nav-thumb');
 const drawerTrackThumb = document.getElementById('drawer-track-thumb');
+const photoDotsContainer = document.getElementById('photo-dots-container');
+
+function initPhotoDots() {
+  if (!photoDotsContainer) return;
+  photoDotsContainer.innerHTML = '';
+  ALBUM_SLIDE_CONFIGS.forEach((cfg, idx) => {
+    const dot = document.createElement('div');
+    dot.className = `photo-dot ${idx === state.currentPhotoIndex ? 'active' : ''}`;
+    dot.title = `${idx + 1}. ${cfg.title}`;
+    dot.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const diff = idx - state.currentPhotoIndex;
+      if (diff !== 0) {
+        navigatePhoto(diff);
+      }
+    });
+    photoDotsContainer.appendChild(dot);
+  });
+}
+
+function updatePhotoDots(index) {
+  if (!photoDotsContainer) return;
+  const dots = photoDotsContainer.querySelectorAll('.photo-dot');
+  dots.forEach((d, idx) => {
+    d.classList.toggle('active', idx === index);
+  });
+}
 
 function updatePhotoNavUI(index) {
   state.currentPhotoIndex = index;
@@ -346,10 +373,11 @@ function updatePhotoNavUI(index) {
   if (drawerTrackThumb && cfg) {
     drawerTrackThumb.src = cfg.imageUrl;
   }
+  updatePhotoDots(index);
 }
 
 function navigatePhoto(direction) {
-  const total = 7;
+  const total = ALBUM_SLIDE_CONFIGS.length;
   const newIndex = ((state.currentPhotoIndex + direction) % total + total) % total;
 
   if (modelData && modelData.animateFilmRoll) {
@@ -382,7 +410,8 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-// Initialize photo nav UI
+// Initialize photo nav UI & Dots
+initPhotoDots();
 updatePhotoNavUI(0);
 
 
@@ -560,7 +589,12 @@ window.addEventListener('mousemove', (event) => {
   }
 
   if (part) {
-    hoverTooltip.textContent = `${part.name} (STT ${part.stt})`;
+    if (part.id === 'cuon_anh' || part.id === 'tam_mica') {
+      const isRight = event.clientX > window.innerWidth / 2;
+      hoverTooltip.textContent = isRight ? 'Click để sang Ảnh Tiếp & Đổi Nhạc (▶)' : 'Click để sang Ảnh Trước & Đổi Nhạc (◀)';
+    } else {
+      hoverTooltip.textContent = `${part.name} (STT ${part.stt})`;
+    }
     hoverTooltip.style.left = `${event.clientX}px`;
     hoverTooltip.style.top = `${event.clientY}px`;
     hoverTooltip.classList.add('visible');
@@ -597,13 +631,20 @@ window.addEventListener('click', (event) => {
     event.target.closest('.header-bar') ||
     event.target.closest('.bottom-controls') ||
     event.target.closest('.inspect-card') ||
-    event.target.closest('.music-drawer')
+    event.target.closest('.music-drawer') ||
+    event.target.closest('.photo-nav-bar')
   ) {
     return;
   }
 
   const part = getIntersectedPart(event);
   if (part) {
+    // Direct 3D interaction: Click on photo roll or front glass flips photo & song!
+    if (part.id === 'cuon_anh' || part.id === 'tam_mica') {
+      const isRight = event.clientX > window.innerWidth / 2;
+      navigatePhoto(isRight ? 1 : -1);
+      return;
+    }
     selectPart(part);
   }
 });

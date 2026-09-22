@@ -268,6 +268,7 @@ export class SummerAudioPlayer {
               callback: () => {
                 const scVol = this.isMuted ? 0 : this.volume * 100;
                 this.scWidget.setVolume(scVol);
+                this.scWidget.play();
               }
             });
             this.isPlaying = true;

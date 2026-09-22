@@ -1025,26 +1025,75 @@ body, html {
   flex-shrink: 0;
 }
 
+.photo-nav-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.photo-nav-header-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.photo-nav-badge {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--accent-primary);
+  color: var(--btn-active-text);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
 .photo-counter {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--accent-primary);
   letter-spacing: 0.5px;
-}
-
-.photo-nav-dot {
-  color: var(--text-muted);
-  opacity: 0.6;
 }
 
 .photo-song-title {
   font-weight: 600;
   color: var(--text-primary);
-  max-width: 200px;
+  max-width: 170px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.photo-dots-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+.photo-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.4;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.photo-dot:hover {
+  opacity: 0.8;
+  transform: scale(1.25);
+}
+
+.photo-dot.active {
+  background: var(--accent-primary);
+  opacity: 1;
+  width: 18px;
+  border-radius: 4px;
+  box-shadow: 0 0 8px var(--accent-glow);
 }
 
 @media (max-width: 900px) {

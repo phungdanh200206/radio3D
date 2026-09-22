@@ -336,10 +336,17 @@
       </button>
       <div class="photo-nav-info">
         <img id="photo-nav-thumb" class="photo-nav-thumb" src="/photos/jack_water.png" alt="Photo" />
-        <span id="photo-counter" class="photo-counter">Ảnh 1 / 7</span>
-        <span class="photo-nav-dot">•</span>
-        <span id="photo-title" class="photo-song-title">Người Dưng</span>
+        <div class="photo-nav-titles">
+          <div class="photo-nav-header-row">
+            <span class="photo-nav-badge">CUỘN ẢNH NHẠC</span>
+            <span id="photo-counter" class="photo-counter">Ảnh 1 / 7</span>
+          </div>
+          <span id="photo-title" class="photo-song-title">Người Dưng</span>
+        </div>
       </div>
+
+      <!-- Quick Jump Dots for All 7 Photos -->
+      <div id="photo-dots-container" class="photo-dots-container"></div>
       <button id="btn-photo-next" class="photo-nav-btn" title="Ảnh tiếp (→)">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="9 18 15 12 9 6"></polyline>
