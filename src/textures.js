@@ -565,6 +565,106 @@ export function createSingleAlbumPhotoTexture(index) {
   return texture;
 }
 
+/**
+ * Split-Flap Card Texture Generator for Mechanical Flipbook Photo Box
+ * Creates crisp top-half and bottom-half photo card textures with realistic split seam
+ */
+export function createSplitFlapCardTextures(index) {
+  return {
+    top: createSingleSplitFlapTexture(index, 'top'),
+    bottom: createSingleSplitFlapTexture(index, 'bottom')
+  };
+}
+
+export function createSingleSplitFlapTexture(index, half) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 340;
+  const ctx = canvas.getContext('2d');
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+
+  const config = ALBUM_SLIDE_CONFIGS[index % ALBUM_SLIDE_CONFIGS.length];
+  const img = preloadPhoto(config.imageUrl);
+
+  function drawHalf(image) {
+    // Archival off-white card paper
+    ctx.fillStyle = '#faf8f2';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const padH = 14;
+    const padTop = half === 'top' ? 14 : 2;
+    const padBottom = half === 'bottom' ? 14 : 2;
+
+    const pw = canvas.width - padH * 2;
+    const ph = canvas.height - (padTop + padBottom);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(padH, padTop, pw, ph);
+    ctx.clip();
+
+    if (image && image.complete && image.naturalWidth > 0) {
+      const srcW = config.crop ? config.crop.sw : image.naturalWidth;
+      const srcH = config.crop ? config.crop.sh : image.naturalHeight;
+      const srcX = config.crop ? config.crop.sx : 0;
+      const srcY = config.crop ? config.crop.sy : 0;
+
+      const halfSrcH = srcH * 0.5;
+      const currentSrcY = half === 'top' ? srcY : srcY + halfSrcH;
+
+      ctx.drawImage(
+        image,
+        srcX, currentSrcY, srcW, halfSrcH,
+        padH, padTop, pw, ph
+      );
+    } else {
+      ctx.fillStyle = '#1c192b';
+      ctx.fillRect(padH, padTop, pw, ph);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 22px "Inter", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(config.title, canvas.width / 2, canvas.height / 2);
+    }
+
+    ctx.restore();
+
+    // Split crease edge shadow
+    if (half === 'top') {
+      const shadowGrad = ctx.createLinearGradient(0, canvas.height - 18, 0, canvas.height);
+      shadowGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      shadowGrad.addColorStop(1, 'rgba(0,0,0,0.38)');
+      ctx.fillStyle = shadowGrad;
+      ctx.fillRect(padH, canvas.height - 18, pw, 18);
+    } else {
+      const shadowGrad = ctx.createLinearGradient(0, 0, 0, 18);
+      shadowGrad.addColorStop(0, 'rgba(0,0,0,0.38)');
+      shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = shadowGrad;
+      ctx.fillRect(padH, 0, pw, 18);
+    }
+
+    // Card frame stroke
+    ctx.strokeStyle = '#d5d2c9';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(padH, padTop, pw, ph);
+
+    texture.needsUpdate = true;
+  }
+
+  if (img.complete && img.naturalWidth > 0) {
+    drawHalf(img);
+  } else {
+    drawHalf(null);
+    img.addEventListener('load', () => drawHalf(img));
+  }
+
+  return texture;
+}
+
 function drawRoundedRect(ctx, x, y, width, height, radius) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);

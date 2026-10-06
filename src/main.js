@@ -179,8 +179,8 @@ swatchBtns.forEach((btn) => {
   btn.addEventListener('click', () => {
     const theme = btn.getAttribute('data-theme');
     loadModel(theme);
-    if (modelData && modelData.updatePhotoTexture) {
-      modelData.updatePhotoTexture(state.currentPhotoIndex);
+    if (modelData && modelData.updateCardPhotos) {
+      modelData.updateCardPhotos(state.currentPhotoIndex);
     }
   });
 });
@@ -193,7 +193,12 @@ const audioPlayer = new SummerAudioPlayer(
     drawerTrackArtist.textContent = `${track.artist} • ${track.genre}`;
     updatePlaylistActiveUI();
     // Update photo counter label to match track index
-    updatePhotoNavUI(audioPlayer.currentIndex);
+    if (state.currentPhotoIndex !== audioPlayer.currentIndex) {
+      updatePhotoNavUI(audioPlayer.currentIndex);
+      if (modelData && modelData.updateCardPhotos) {
+        modelData.updateCardPhotos(audioPlayer.currentIndex);
+      }
+    }
   },
   // onPlayStateChange callback
   (isPlaying) => {
@@ -380,10 +385,10 @@ function navigatePhoto(direction) {
   const total = ALBUM_SLIDE_CONFIGS.length;
   const newIndex = ((state.currentPhotoIndex + direction) % total + total) % total;
 
-  if (modelData && modelData.animateFilmRoll) {
-    modelData.animateFilmRoll(direction, () => {
-      if (modelData.updatePhotoTexture) modelData.updatePhotoTexture(newIndex);
-    });
+  if (modelData && modelData.animateCardFlip) {
+    modelData.animateCardFlip(direction);
+  } else if (modelData && modelData.updateCardPhotos) {
+    modelData.updateCardPhotos(newIndex);
   }
 
   audioPlayer.selectTrack(newIndex);
@@ -589,9 +594,9 @@ window.addEventListener('mousemove', (event) => {
   }
 
   if (part) {
-    if (part.id === 'cuon_anh' || part.id === 'tam_mica') {
+    if (part.id === 'co_cau_lat_anh' || part.id === 'tay_quay' || part.id === 'tam_mica') {
       const isRight = event.clientX > window.innerWidth / 2;
-      hoverTooltip.textContent = isRight ? 'Click để sang Ảnh Tiếp & Đổi Nhạc (▶)' : 'Click để sang Ảnh Trước & Đổi Nhạc (◀)';
+      hoverTooltip.textContent = isRight ? 'Click để quay tay quay & Lật Ảnh / Đổi Nhạc (▶)' : 'Click để quay tay quay & Lật Ảnh / Đổi Nhạc (◀)';
     } else {
       hoverTooltip.textContent = `${part.name} (STT ${part.stt})`;
     }
@@ -639,8 +644,8 @@ window.addEventListener('click', (event) => {
 
   const part = getIntersectedPart(event);
   if (part) {
-    // Direct 3D interaction: Click on photo roll or front glass flips photo & song!
-    if (part.id === 'cuon_anh' || part.id === 'tam_mica') {
+    // Direct 3D interaction: Click on split-flap cards, crank handle, or front glass flips photo & song!
+    if (part.id === 'co_cau_lat_anh' || part.id === 'tay_quay' || part.id === 'tam_mica') {
       const isRight = event.clientX > window.innerWidth / 2;
       navigatePhoto(isRight ? 1 : -1);
       return;
@@ -719,17 +724,18 @@ function animate() {
 
   controls.update();
 
-  // Spin tape spools & gears when playing music
+  // Spin mechanical crank & gears when playing music
   if (state.isPlaying && modelData) {
-    // Both reels spin visibly inside the window
-    modelData.spools.forEach((spool) => {
-      spool.rotation.z -= delta * 3.5;
-    });
+    if (modelData.crank) {
+      modelData.crank.rotation.x -= delta * 1.5;
+    }
 
     // Mechanical gears spin according to ratio
-    if (modelData.gears[0]) modelData.gears[0].rotation.z += delta * 1.8;
-    if (modelData.gears[1]) modelData.gears[1].rotation.z -= delta * 1.8 * (26 / 18);
-    if (modelData.gears[2]) modelData.gears[2].rotation.z += delta * 1.8 * (26 / 12);
+    if (modelData.gears) {
+      if (modelData.gears[0]) modelData.gears[0].rotation.z += delta * 1.8;
+      if (modelData.gears[1]) modelData.gears[1].rotation.z -= delta * 1.8 * (26 / 18);
+      if (modelData.gears[2]) modelData.gears[2].rotation.z += delta * 1.8 * (26 / 12);
+    }
 
     if (modelData.knob) {
       modelData.knob.rotation.x = Math.sin(elapsedTime * 4) * 0.05;

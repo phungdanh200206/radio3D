@@ -8,7 +8,9 @@ import {
   createBrushedMetalTexture,
   createGlassSheenTexture,
   createAlbumPhotoTextures,
-  createSingleAlbumPhotoTexture
+  createSingleAlbumPhotoTexture,
+  createSplitFlapCardTextures,
+  createSingleSplitFlapTexture
 } from './textures.js';
 
 /**
@@ -424,6 +426,17 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   slotInnerMesh.position.set(0, 0, 0);
   topLidGroup.add(slotInnerMesh);
 
+  // Brass accent latch at top center front rim (as shown in reference photo)
+  const brassLatchGeom = new THREE.BoxGeometry(10, 2.5, 5);
+  const brassLatchMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37, // Royal Brass Gold
+    metalness: 0.95,
+    roughness: 0.2
+  });
+  const brassLatchMesh = new THREE.Mesh(brassLatchGeom, brassLatchMat);
+  brassLatchMesh.position.set(0, 0, 42);
+  topLidGroup.add(brassLatchMesh);
+
   topLidGroup.position.set(0, 55, 0);
 
   registerPart({
@@ -497,277 +510,281 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   });
 
   // ==========================================
-  // PART 4: CUỘN ẢNH & PHIM HOÀI NIỆM (100 x 63 x 14 mm)
+  // PART 4: CƠ CẤU LẬT ẢNH CƠ HỌC (SPLIT-FLAP FLIPBOOK MECHANISM)
+  // Phù hợp kích thước khoang: 104 × 68 × 22 mm (Cửa kính 118 × 72 mm)
   // ==========================================
-  const cuonAnhGroup = new THREE.Group();
-  cuonAnhGroup.name = 'CuonAnhGroup';
+  const coCauLatAnhGroup = new THREE.Group();
+  coCauLatAnhGroup.name = 'CoCauLatAnhGroup';
 
-  // Generate all 7 album photo textures
-  const photoTextures = createAlbumPhotoTextures();
-
-  // Chrome/silver spool material
-  const spoolChromeMat = new THREE.MeshStandardMaterial({
-    color: 0xd0d4da,
-    roughness: 0.18,
-    metalness: 0.92
-  });
-  const spoolAccentMat = new THREE.MeshStandardMaterial({
-    color: activeTheme === 'midnight' || activeTheme === 'walnut' ? 0xed9e59 : 0xf0a030,
-    roughness: 0.25,
-    metalness: 0.8
-  });
-
-  // === LEFT SPOOL ROLLER (Left film reel) ===
-  const leftSpoolGroup = new THREE.Group();
-  leftSpoolGroup.position.set(-52, 0, 0);
-
-  // Outer rim
-  const leftRimGeom = new THREE.CylinderGeometry(8, 8, 13, 32, 1, true);
-  leftRimGeom.rotateX(Math.PI / 2);
-  leftSpoolGroup.add(new THREE.Mesh(leftRimGeom, spoolChromeMat));
-
-  // Inner hub
-  const leftHubGeom = new THREE.CylinderGeometry(4, 4, 14, 16);
-  leftHubGeom.rotateX(Math.PI / 2);
-  leftSpoolGroup.add(new THREE.Mesh(leftHubGeom, spoolAccentMat));
-
-  // Spokes (5)
-  for (let k = 0; k < 5; k++) {
-    const angle = (k * Math.PI * 2) / 5;
-    const spokeGeom = new THREE.BoxGeometry(1.2, 3.8, 13);
-    const spk = new THREE.Mesh(spokeGeom, spoolChromeMat);
-    spk.position.set(Math.cos(angle) * 5.8, Math.sin(angle) * 5.8, 0);
-    spk.rotation.z = angle;
-    leftSpoolGroup.add(spk);
+  // Generate split-flap card textures (top half and bottom half) for all 7 tracks
+  const splitCardTextures = [];
+  for (let i = 0; i < 7; i++) {
+    splitCardTextures.push(createSplitFlapCardTextures(i));
   }
 
-  // Front & back face disc
-  const discGeom = new THREE.CylinderGeometry(8, 8, 1.2, 32);
-  discGeom.rotateX(Math.PI / 2);
-  const discFront = new THREE.Mesh(discGeom, spoolChromeMat);
-  discFront.position.z = 6.8;
-  leftSpoolGroup.add(discFront);
-  const discBack = discFront.clone();
-  discBack.position.z = -6.8;
-  leftSpoolGroup.add(discBack);
-
-  cuonAnhGroup.add(leftSpoolGroup);
-
-  // === RIGHT SPOOL ROLLER (Right film reel) ===
-  const rightSpoolGroup = new THREE.Group();
-  rightSpoolGroup.position.set(52, 0, 0);
-
-  const rightRimGeom = new THREE.CylinderGeometry(8, 8, 13, 32, 1, true);
-  rightRimGeom.rotateX(Math.PI / 2);
-  rightSpoolGroup.add(new THREE.Mesh(rightRimGeom, spoolChromeMat));
-
-  const rightHubGeom = new THREE.CylinderGeometry(4, 4, 14, 16);
-  rightHubGeom.rotateX(Math.PI / 2);
-  rightSpoolGroup.add(new THREE.Mesh(rightHubGeom, spoolAccentMat));
-
-  for (let k = 0; k < 5; k++) {
-    const angle = (k * Math.PI * 2) / 5;
-    const spokeGeom = new THREE.BoxGeometry(1.2, 3.8, 13);
-    const spk = new THREE.Mesh(spokeGeom, spoolChromeMat);
-    spk.position.set(Math.cos(angle) * 5.8, Math.sin(angle) * 5.8, 0);
-    spk.rotation.z = angle;
-    rightSpoolGroup.add(spk);
-  }
-
-  const discGeomR = new THREE.CylinderGeometry(8, 8, 1.2, 32);
-  discGeomR.rotateX(Math.PI / 2);
-  const discFrontR = new THREE.Mesh(discGeomR, spoolChromeMat);
-  discFrontR.position.z = 6.8;
-  rightSpoolGroup.add(discFrontR);
-  const discBackR = discFrontR.clone();
-  discBackR.position.z = -6.8;
-  rightSpoolGroup.add(discBackR);
-
-  cuonAnhGroup.add(rightSpoolGroup);
-
-  // === FILM STRIP BACKING ===
-  const filmStripMat = new THREE.MeshStandardMaterial({
-    color: 0x14100e,
-    roughness: 0.85,
-    metalness: 0.05
+  // 1. Central Horizontal Steel Axle (Trục thép ngang trung tâm)
+  const centerAxleGeom = new THREE.CylinderGeometry(1.6, 1.6, 112, 24);
+  centerAxleGeom.rotateZ(Math.PI / 2);
+  const centerAxleMat = new THREE.MeshStandardMaterial({
+    color: 0xd8dbe0,
+    metalness: 0.95,
+    roughness: 0.18
   });
-  const filmStripGeom = new THREE.BoxGeometry(108, 68, 2);
-  const filmStrip = new THREE.Mesh(filmStripGeom, filmStripMat);
-  filmStrip.position.set(0, 0, -1.2);
-  cuonAnhGroup.add(filmStrip);
+  const centerAxle = new THREE.Mesh(centerAxleGeom, centerAxleMat);
+  centerAxle.position.set(0, 0, 20);
+  coCauLatAnhGroup.add(centerAxle);
 
-  // === CENTRAL PHOTO DISPLAY PLANE (Fills 106 x 66 mm inside 118 x 72 mm window) ===
-  const photoGeom = new THREE.PlaneGeometry(106, 66);
-  const photoMat = new THREE.MeshStandardMaterial({
-    map: photoTextures[0],
-    roughness: 0.2,
+  // Brass mounting pivot brackets at left & right walls
+  const pivotCollarGeom = new THREE.CylinderGeometry(3.6, 3.6, 4, 16);
+  pivotCollarGeom.rotateZ(Math.PI / 2);
+  const brassPivotMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37,
+    metalness: 0.92,
+    roughness: 0.22
+  });
+  const collarL = new THREE.Mesh(pivotCollarGeom, brassPivotMat);
+  collarL.position.set(-53, 0, 20);
+  coCauLatAnhGroup.add(collarL);
+  const collarR = collarL.clone();
+  collarR.position.set(53, 0, 20);
+  coCauLatAnhGroup.add(collarR);
+
+  // 2. Stationary Top Flap (Nửa thẻ ảnh trên cố định)
+  const flapW = 104;
+  const flapH = 33.5;
+  const topFlapGeom = new THREE.PlaneGeometry(flapW, flapH);
+  const topFlapMat = new THREE.MeshStandardMaterial({
+    map: splitCardTextures[0].top,
+    roughness: 0.28,
     metalness: 0.02,
     emissive: new THREE.Color(0xffffff),
-    emissiveMap: photoTextures[0],
-    emissiveIntensity: 0.3, // Soft internal backlit glow
+    emissiveMap: splitCardTextures[0].top,
+    emissiveIntensity: 0.25,
     transparent: false
   });
-  photoMat.map.minFilter = THREE.LinearFilter;
-  photoMat.map.magFilter = THREE.LinearFilter;
+  const topFlapMesh = new THREE.Mesh(topFlapGeom, topFlapMat);
+  topFlapMesh.position.set(0, flapH * 0.5 + 0.6, 19.5);
+  coCauLatAnhGroup.add(topFlapMesh);
 
-  const photoMesh = new THREE.Mesh(photoGeom, photoMat);
-  photoMesh.position.set(0, 0, 7.5);
-  cuonAnhGroup.add(photoMesh);
-
-  // Internal warm backlight behind the glass to illuminate the photo
-  const photoLight = new THREE.PointLight(0xfff8ee, 1.2, 160);
-  photoLight.position.set(0, 0, 16);
-  cuonAnhGroup.add(photoLight);
-
-  // Sleek black & titanium matte frame border around the photo
-  const frameMat = new THREE.MeshStandardMaterial({ color: 0x161413, roughness: 0.8, metalness: 0.2 });
-  const frameParts = [
-    { w: 110, h: 3, x: 0, y: 34.5 },
-    { w: 110, h: 3, x: 0, y: -34.5 },
-    { w: 3, h: 72, x: 54.5, y: 0 },
-    { w: 3, h: 72, x: -54.5, y: 0 }
-  ];
-  frameParts.forEach(f => {
-    const fg = new THREE.BoxGeometry(f.w, f.h, 3);
-    const fm = new THREE.Mesh(fg, frameMat);
-    fm.position.set(f.x, f.y, 7.5);
-    cuonAnhGroup.add(fm);
+  // 3. Stationary Bottom Flap (Nửa thẻ ảnh dưới cố định)
+  const bottomFlapGeom = new THREE.PlaneGeometry(flapW, flapH);
+  const bottomFlapMat = new THREE.MeshStandardMaterial({
+    map: splitCardTextures[0].bottom,
+    roughness: 0.28,
+    metalness: 0.02,
+    emissive: new THREE.Color(0xffffff),
+    emissiveMap: splitCardTextures[0].bottom,
+    emissiveIntensity: 0.25,
+    transparent: false
   });
+  const bottomFlapMesh = new THREE.Mesh(bottomFlapGeom, bottomFlapMat);
+  bottomFlapMesh.position.set(0, -flapH * 0.5 - 0.6, 19.5);
+  coCauLatAnhGroup.add(bottomFlapMesh);
 
-  cuonAnhGroup.position.set(0, 1, 28);
+  // 4. Flipping Flap Assembly (Lá ảnh lật 3D hai mặt)
+  const flippingFlapGroup = new THREE.Group();
+  flippingFlapGroup.position.set(0, 0, 20.2); // Pivot on central axle
+
+  // Front leaf (shows old photo top half before flipping)
+  const leafFrontGeom = new THREE.PlaneGeometry(flapW, flapH);
+  const leafFrontMat = new THREE.MeshStandardMaterial({
+    map: splitCardTextures[0].top,
+    roughness: 0.28,
+    metalness: 0.02,
+    emissive: new THREE.Color(0xffffff),
+    emissiveMap: splitCardTextures[0].top,
+    emissiveIntensity: 0.25,
+    side: THREE.FrontSide
+  });
+  const flipLeafFront = new THREE.Mesh(leafFrontGeom, leafFrontMat);
+  flipLeafFront.position.set(0, flapH * 0.5 + 0.6, 0.15);
+  flippingFlapGroup.add(flipLeafFront);
+
+  // Back leaf (shows new photo bottom half when landed)
+  const leafBackGeom = new THREE.PlaneGeometry(flapW, flapH);
+  const leafBackMat = new THREE.MeshStandardMaterial({
+    map: splitCardTextures[0].bottom,
+    roughness: 0.28,
+    metalness: 0.02,
+    emissive: new THREE.Color(0xffffff),
+    emissiveMap: splitCardTextures[0].bottom,
+    emissiveIntensity: 0.25,
+    side: THREE.FrontSide
+  });
+  const flipLeafBack = new THREE.Mesh(leafBackGeom, leafBackMat);
+  flipLeafBack.position.set(0, flapH * 0.5 + 0.6, -0.15);
+  flipLeafBack.rotation.y = Math.PI; // Face outwards towards the back
+  flippingFlapGroup.add(flipLeafBack);
+
+  flippingFlapGroup.visible = false;
+  coCauLatAnhGroup.add(flippingFlapGroup);
+
+  // 5. Leaf Retention Stop Tabs (Gờ chặn thẻ ảnh ở mép trên)
+  const stopTabGeom = new THREE.BoxGeometry(3.5, 5, 4);
+  const stopTabMat = new THREE.MeshStandardMaterial({ color: 0x22201e, roughness: 0.7 });
+  const stopTabL = new THREE.Mesh(stopTabGeom, stopTabMat);
+  stopTabL.position.set(-51, 33, 21.5);
+  coCauLatAnhGroup.add(stopTabL);
+  const stopTabR = stopTabL.clone();
+  stopTabR.position.set(51, 33, 21.5);
+  coCauLatAnhGroup.add(stopTabR);
+
+  // 6. Backing card chamber board with soft warm LED illumination
+  const cardBackingGeom = new THREE.BoxGeometry(108, 72, 3);
+  const cardBackingMat = new THREE.MeshStandardMaterial({ color: 0x181412, roughness: 0.9 });
+  const cardBacking = new THREE.Mesh(cardBackingGeom, cardBackingMat);
+  cardBacking.position.set(0, 0, 15);
+  coCauLatAnhGroup.add(cardBacking);
+
+  const cardLight = new THREE.PointLight(0xfff8ee, 1.25, 160);
+  cardLight.position.set(0, 0, 28);
+  coCauLatAnhGroup.add(cardLight);
+
+  coCauLatAnhGroup.position.set(0, 1, 8);
 
   registerPart({
-    group: cuonAnhGroup,
-    id: 'cuon_anh',
+    group: coCauLatAnhGroup,
+    id: 'co_cau_lat_anh',
     stt: 4,
-    name: 'Khung Cuộn Ảnh Phát Nhạc (Jack - J97)',
-    material: 'Bộ cuộn phim hợp kim nhôm / Đèn nền LED / Ảnh thật',
-    quantity: '1',
-    dimensions: '106 × 66 × 14 mm (Khung nhìn 118 × 72 mm)',
-    notes: 'Khung cuộn ảnh tích hợp trong khoang phát nhạc 3D. Mỗi bài hát tương ứng với 1 tấm ảnh thật của Jack - J97 (Album Tam Thái Tử). Chuyển ảnh sẽ tự động đổi nhạc tương ứng.',
-    category: 'Khung ảnh phát nhạc',
+    name: 'Cơ cấu Lật ảnh cơ học (Split-Flap Flipbook)',
+    material: 'Thẻ ảnh mỹ thuật / Trục thép Ø3.2 / Gờ chặn cơ học',
+    quantity: '1 bộ (7 bài hát = 7 lá ảnh)',
+    dimensions: '104 × 68 × 18 mm (Trục ngang Ø3.2 × 112 mm)',
+    notes: 'Cơ cấu lật ảnh theo nguyên lý Split-Flap (tương tự đồng hồ lật trang). Khi quay tay quay bên hông, thẻ ảnh lật gập xuống theo trục ngang để chuyển sang bức ảnh mới của Jack - J97 và phát bài hát tương ứng.',
+    category: 'Môi chất phát',
     explodedOffset: new THREE.Vector3(0, 0, 85),
-    dimBox: { w: 106, h: 66, d: 14 }
+    dimBox: { w: 104, h: 68, d: 18 }
   });
 
-  // Spool references (same interface as before — used in animation loop)
-  const spools = [leftSpoolGroup, rightSpoolGroup];
+  // ==========================================
+  // PART 5: TAY QUAY CƠ HỌC BÊN HÔNG PHẢI (CRANK HANDLE)
+  // Theo đúng ảnh mẫu Personalized Flipbook Photo Box
+  // ==========================================
+  const crankGroup = new THREE.Group();
+  crankGroup.name = 'TayQuayGroup';
+  crankGroup.position.set(75, 1, 8); // Mounted on right wall of box
 
-  // Photo state
-  let currentPhotoIdx = 0;
-  let isAnimating = false;
+  // Drive axle shaft projecting through right wooden wall
+  const crankAxleGeom = new THREE.CylinderGeometry(3.2, 3.2, 14, 20);
+  crankAxleGeom.rotateZ(Math.PI / 2);
+  const crankAxleMesh = new THREE.Mesh(crankAxleGeom, centerAxleMat);
+  crankAxleMesh.position.set(7, 0, 0);
+  crankGroup.add(crankAxleMesh);
 
-  /**
-   * updatePhotoTexture(index) — swap the photo displayed on photoMesh
-   */
-  function updatePhotoTexture(index) {
-    currentPhotoIdx = index;
-    const tex = photoTextures[index] || createSingleAlbumPhotoTexture(index);
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    photoMesh.material.map = tex;
-    photoMesh.material.emissiveMap = tex;
-    photoMesh.material.needsUpdate = true;
+  // Brass decorative collar against wooden wall
+  const crankCollarGeom = new THREE.CylinderGeometry(6, 6, 2.5, 24);
+  crankCollarGeom.rotateZ(Math.PI / 2);
+  const crankCollar = new THREE.Mesh(crankCollarGeom, brassPivotMat);
+  crankCollar.position.set(2, 0, 0);
+  crankGroup.add(crankCollar);
+
+  // Wooden crank arm (Cần gạt tay quay bằng gỗ óc chó / sồi)
+  const armGeom = new THREE.BoxGeometry(7, 36, 6);
+  const crankArmMat = topLidMat; // Match outer wood theme
+  const crankArm = new THREE.Mesh(armGeom, crankArmMat);
+  crankArm.position.set(14, -13, 0);
+  crankGroup.add(crankArm);
+
+  // Wooden cylindrical turning knob peg (Núm quay gỗ tròn)
+  const knobPegGeom = new THREE.CylinderGeometry(4.5, 4.5, 24, 24);
+  knobPegGeom.rotateZ(Math.PI / 2);
+  const pegMat = activeTheme === 'walnut' || activeTheme === 'midnight'
+    ? new THREE.MeshStandardMaterial({ color: 0xc49a6c, roughness: 0.4 }) // Light walnut / honey peg
+    : new THREE.MeshStandardMaterial({ color: 0xd8b589, roughness: 0.4 });
+  const knobPeg = new THREE.Mesh(knobPegGeom, pegMat);
+  knobPeg.position.set(26, -26, 0);
+  crankGroup.add(knobPeg);
+
+  // Polished metal end cap screw on outer tip of the knob
+  const endCapGeom = new THREE.CylinderGeometry(3.5, 3.5, 2, 16);
+  endCapGeom.rotateZ(Math.PI / 2);
+  const endCap = new THREE.Mesh(endCapGeom, centerAxleMat);
+  endCap.position.set(38, -26, 0);
+  crankGroup.add(endCap);
+
+  rootGroup.add(crankGroup);
+
+  registerPart({
+    group: crankGroup,
+    id: 'tay_quay',
+    stt: 5,
+    name: 'Tay quay cơ học bên hông (Crank Handle)',
+    material: 'Cần gạt gỗ tự nhiên, Trục thép Ø6.4, Núm xoay Ø9 × 24 mm',
+    quantity: '1',
+    dimensions: 'Cần dài 36 mm, Núm xoay Ø9 × 24 mm (Nhô 38 mm)',
+    notes: 'Tay quay cơ học bên hông máy đúng như ảnh mẫu. Người dùng quay tay quay 1 vòng (360°) để lật sang ảnh tiếp theo, đồng thời tự động kích hoạt phát ca khúc tương ứng.',
+    category: 'Bộ truyền động cơ học',
+    explodedOffset: new THREE.Vector3(75, 0, 0),
+    dimBox: { w: 38, h: 36, d: 9 }
+  });
+
+  // Flip card animation state
+  let currentCardIdx = 0;
+  let isCardAnimating = false;
+
+  function updateCardPhotos(index) {
+    currentCardIdx = index;
+    const t = splitCardTextures[index] || createSplitFlapCardTextures(index);
+    topFlapMesh.material.map = t.top;
+    topFlapMesh.material.emissiveMap = t.top;
+    topFlapMesh.material.needsUpdate = true;
+    bottomFlapMesh.material.map = t.bottom;
+    bottomFlapMesh.material.emissiveMap = t.bottom;
+    bottomFlapMesh.material.needsUpdate = true;
   }
 
-  /**
-   * animateFilmRoll(direction, onComplete)
-   * direction: -1 (prev) or +1 (next)
-   * Spins spools, slides photo out then swaps texture, slides back in
-   */
-  function animateFilmRoll(direction, onComplete) {
-    if (isAnimating) return;
-    isAnimating = true;
+  function animateCardFlip(direction, onComplete) {
+    if (isCardAnimating) return;
+    isCardAnimating = true;
 
-    const slideOutX = direction * -110;
-    const tl = gsap.timeline({
+    const targetIdx = ((currentCardIdx + direction) % 7 + 7) % 7;
+    const oldTex = splitCardTextures[currentCardIdx] || createSplitFlapCardTextures(currentCardIdx);
+    const newTex = splitCardTextures[targetIdx] || createSplitFlapCardTextures(targetIdx);
+
+    // 1. Rotate the crank handle a full 360 degrees
+    gsap.to(crankGroup.rotation, {
+      x: direction > 0 ? '-=' + Math.PI * 2 : '+=' + Math.PI * 2,
+      duration: 0.45,
+      ease: 'power2.inOut'
+    });
+
+    // 2. Prepare flipping card
+    flipLeafFront.material.map = oldTex.top;
+    flipLeafFront.material.emissiveMap = oldTex.top;
+    flipLeafFront.material.needsUpdate = true;
+
+    flipLeafBack.material.map = newTex.bottom;
+    flipLeafBack.material.emissiveMap = newTex.bottom;
+    flipLeafBack.material.needsUpdate = true;
+
+    // Reveal new top flap underneath
+    topFlapMesh.material.map = newTex.top;
+    topFlapMesh.material.emissiveMap = newTex.top;
+    topFlapMesh.material.needsUpdate = true;
+
+    flippingFlapGroup.visible = true;
+    flippingFlapGroup.rotation.x = 0;
+
+    // 3. Flip leaf drops 180 degrees forward and down
+    gsap.to(flippingFlapGroup.rotation, {
+      x: -Math.PI,
+      duration: 0.38,
+      ease: 'power2.in',
       onComplete: () => {
-        isAnimating = false;
+        // Card has landed on bottom flap!
+        bottomFlapMesh.material.map = newTex.bottom;
+        bottomFlapMesh.material.emissiveMap = newTex.bottom;
+        bottomFlapMesh.material.needsUpdate = true;
+
+        currentCardIdx = targetIdx;
+        flippingFlapGroup.visible = false;
+        flippingFlapGroup.rotation.x = 0;
+        isCardAnimating = false;
+
+        if (onComplete) onComplete();
       }
     });
-
-    // Phase 1: slide photo out
-    tl.to(photoMesh.position, {
-      x: slideOutX,
-      duration: 0.25,
-      ease: 'power2.in'
-    });
-
-    // Phase 2: spin spools fast during transition
-    tl.to([leftSpoolGroup.rotation, rightSpoolGroup.rotation], {
-      z: direction > 0 ? '-=4.5' : '+=4.5',
-      duration: 0.25,
-      ease: 'power2.inOut'
-    }, '<');
-
-    // Phase 3: swap texture when off-screen, reset position
-    tl.call(() => {
-      if (onComplete) onComplete();
-      photoMesh.position.x = -slideOutX;
-    });
-
-    // Phase 4: slide new photo in
-    tl.to(photoMesh.position, {
-      x: 0,
-      duration: 0.3,
-      ease: 'power2.out'
-    });
-
-    // Phase 5: another spool spin burst as film settles
-    tl.to([leftSpoolGroup.rotation, rightSpoolGroup.rotation], {
-      z: direction > 0 ? '-=1.5' : '+=1.5',
-      duration: 0.3,
-      ease: 'power3.out'
-    }, '<');
   }
-
-
-  // ==========================================
-  // PART 5: GIÁ ĐỠ BĂNG CASSETTE (101 x 64 x 3 mm)
-  // ==========================================
-  const cradleGroup = new THREE.Group();
-  cradleGroup.name = 'GiaDoBangGroup';
-
-  const cradleShape = createRoundedRectShape(101, 64, 3);
-  const cradleHole = createRoundedRectShape(88, 50, 4);
-  cradleShape.holes.push(cradleHole);
-
-  const cradleGeom = new THREE.ExtrudeGeometry(cradleShape, {
-    depth: 3,
-    bevelEnabled: true,
-    bevelThickness: 0.4,
-    bevelSize: 0.4,
-    bevelSegments: 2
-  });
-  cradleGeom.center();
-  const cradleMesh = new THREE.Mesh(cradleGeom, cradleMat);
-  cradleGroup.add(cradleMesh);
-
-  const pinLGeom = new THREE.CylinderGeometry(2, 2, 8, 16);
-  pinLGeom.rotateZ(Math.PI / 2);
-  const pinL = new THREE.Mesh(pinLGeom, silverGearMaterial);
-  pinL.position.set(-36, -32, 2);
-  cradleGroup.add(pinL);
-
-  const pinR = pinL.clone();
-  pinR.position.set(36, -32, 2);
-  cradleGroup.add(pinR);
-
-  cradleGroup.position.set(0, 1, 19);
-
-  registerPart({
-    group: cradleGroup,
-    id: 'gia_do_bang',
-    stt: 5,
-    name: 'Giá đỡ băng cassette',
-    material: 'Nhựa kỹ thuật / Hợp kim nhôm',
-    quantity: '1',
-    dimensions: '101 × 64 × 3 mm (2 chốt định vị R2)',
-    notes: 'Kích thước 101×64 mm, dày 3 mm, có 2 chốt gờ bo R2 mm ở cạnh dưới giúp giữ chặt băng cassette đúng vị trí tiếp xúc đầu từ.',
-    category: 'Khung cơ khí',
-    explodedOffset: new THREE.Vector3(0, 0, 48),
-    dimBox: { w: 101, h: 64, d: 3 }
-  });
 
   // ==========================================
   // INTERNAL MECHANISM ASSEMBLY
@@ -1031,12 +1048,13 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   return {
     rootGroup,
     partsList,
-    spools,
+    crank: crankGroup,
     gears: [gearLargeGroup, gearMedGroup, gearSmallGroup],
     knob: knobGroup,
-    photoMesh,
-    photoTextures,
-    updatePhotoTexture,
-    animateFilmRoll
+    topFlapMesh,
+    bottomFlapMesh,
+    splitCardTextures,
+    updateCardPhotos,
+    animateCardFlip
   };
 }
