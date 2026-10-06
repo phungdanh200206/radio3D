@@ -90,7 +90,6 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   const woodBump = createRealisticWoodBumpTexture();
   const woodRoughness = createRealisticWoodRoughnessTexture();
   const knurlBump = createKnurlBumpTexture();
-  const cassetteLabel = createCassetteLabelTexture('Tam Thái Tử', activeTheme);
   const brushedMetal = createBrushedMetalTexture();
   const glassSheen = createGlassSheenTexture();
 
@@ -224,8 +223,9 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     // 6. Gỗ Sồi Cổ Điển (Natural Oak Wood - Default)
     const oakWoodMat = new THREE.MeshStandardMaterial({
       map: woodMap,
+      color: 0xc89b68, // Rich natural honey oak wood
       bumpMap: woodBump,
-      bumpScale: 0.9,
+      bumpScale: 0.75,
       roughnessMap: woodRoughness,
       roughness: 0.42,
       metalness: 0.02
@@ -372,7 +372,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   const shaftBushingGeom = new THREE.CylinderGeometry(5, 5, 18, 24);
   shaftBushingGeom.rotateZ(Math.PI / 2);
   const shaftBushingMesh = new THREE.Mesh(shaftBushingGeom, silverGearMaterial);
-  shaftBushingMesh.position.set(70, 0, 8);
+  shaftBushingMesh.position.set(70, 0, 20);
   woodCaseGroup.add(shaftBushingMesh);
 
   registerPart({
@@ -477,8 +477,8 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   const sheenMat = new THREE.MeshBasicMaterial({
     map: glassSheen,
     transparent: true,
-    opacity: 0.38,
-    blending: THREE.AdditiveBlending,
+    opacity: 0.10,
+    blending: THREE.NormalBlending,
     depthWrite: false
   });
   const sheenMesh = new THREE.Mesh(sheenGeom, sheenMat);
@@ -662,7 +662,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   // ==========================================
   const crankGroup = new THREE.Group();
   crankGroup.name = 'TayQuayGroup';
-  crankGroup.position.set(75, 1, 8); // Mounted on right wall of box
+  crankGroup.position.set(75, 0, 20); // Mounted on right wall of box in line with split flap axle
 
   // Drive axle shaft projecting through right wooden wall
   const crankAxleGeom = new THREE.CylinderGeometry(3.2, 3.2, 14, 20);
@@ -940,47 +940,55 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     dimBox: { w: 50, h: 6, d: 6 }
   });
 
-  // PART 10: NÚM XOAY (Ø35 mm, Dày 18 mm)
-  const knobGroup = new THREE.Group();
-  knobGroup.name = 'NumXoayGroup';
+  // ==========================================
+  // PART 10: BỘ 4 CHÂN ĐẾ ĐỆM CAO SU VIỀN ĐỒNG THAU (ANTI-SLIP FEET)
+  // ==========================================
+  const feetGroup = new THREE.Group();
+  feetGroup.name = 'ChanDeGroup';
 
-  const knobGeom = new THREE.CylinderGeometry(17.5, 17.5, 18, 48);
-  knobGeom.rotateZ(Math.PI / 2);
-  const knobMesh = new THREE.Mesh(knobGeom, knobMat);
-  knobGroup.add(knobMesh);
+  const footGeom = new THREE.CylinderGeometry(5.5, 6.5, 3.5, 24);
+  const footRingGeom = new THREE.CylinderGeometry(6.8, 6.8, 1.2, 24);
+  const brassFootMat = new THREE.MeshStandardMaterial({
+    color: 0xd4af37,
+    metalness: 0.92,
+    roughness: 0.22
+  });
+  const rubberMat = new THREE.MeshStandardMaterial({
+    color: 0x1c1a18,
+    roughness: 0.85
+  });
 
-  const knobCapGeom = new THREE.CylinderGeometry(16.5, 17.5, 1.5, 48);
-  knobCapGeom.rotateZ(Math.PI / 2);
-  const knobCapMesh = new THREE.Mesh(knobCapGeom, knobAccentMat);
-  knobCapMesh.position.set(9.5, 0, 0);
-  knobGroup.add(knobCapMesh);
+  const footCoords = [
+    [-56, -55 - 1.8, -28],
+    [56, -55 - 1.8, -28],
+    [-56, -55 - 1.8, 28],
+    [56, -55 - 1.8, 28]
+  ];
 
-  const dotGeom = new THREE.CylinderGeometry(1, 1, 1, 16);
-  dotGeom.rotateZ(Math.PI / 2);
-  const dotMesh = new THREE.Mesh(dotGeom, blackPlasticMaterial);
-  dotMesh.position.set(10.2, 12, 0);
-  knobGroup.add(dotMesh);
+  footCoords.forEach(([fx, fy, fz]) => {
+    const ringMesh = new THREE.Mesh(footRingGeom, brassFootMat);
+    ringMesh.position.set(fx, fy + 1.2, fz);
+    feetGroup.add(ringMesh);
 
-  const stemGeom = new THREE.CylinderGeometry(4, 4, 14, 24);
-  stemGeom.rotateZ(Math.PI / 2);
-  const stemMesh = new THREE.Mesh(stemGeom, silverGearMaterial);
-  stemMesh.position.set(-11, 0, 0);
-  knobGroup.add(stemMesh);
+    const padMesh = new THREE.Mesh(footGeom, rubberMat);
+    padMesh.position.set(fx, fy - 0.6, fz);
+    feetGroup.add(padMesh);
+  });
 
-  knobGroup.position.set(84, 0, 8);
+  rootGroup.add(feetGroup);
 
   registerPart({
-    group: knobGroup,
-    id: 'num_xoay',
+    group: feetGroup,
+    id: 'chan_de',
     stt: 10,
-    name: 'Núm xoay kim loại nguyên khối',
-    material: 'Kim loại tiện nguyên khối khía ca-rô chống trượt',
-    quantity: '1',
-    dimensions: 'Đường kính Ø35 mm, Dày 18 mm (Chốt gắn Ø8 mm)',
-    notes: 'Núm xoay kim loại tiện nguyên khối, khắc vân khía ca-rô (knurled diamond pattern) chống trượt, chốt gắn Ø8 mm.',
-    category: 'Giao diện điều khiển',
-    explodedOffset: new THREE.Vector3(145, 0, 8),
-    dimBox: { w: 18, h: 35, d: 35 }
+    name: 'Bộ 4 chân đế đệm chống trượt',
+    material: 'Cao su kỹ thuật đúc viền đồng thau CNC',
+    quantity: '4',
+    dimensions: 'Đường kính Ø14 mm, Dày 4 mm (4 góc đáy)',
+    notes: 'Bộ 4 chân đế đệm cao su viền đồng thau gắn tại 4 góc mặt đáy hộp, cách âm chống rung khi cơ cấu quay lật ảnh hoạt động và bảo vệ bề mặt bàn trưng bày.',
+    category: 'Chân đế cố định',
+    explodedOffset: new THREE.Vector3(0, -60, 0),
+    dimBox: { w: 126, h: 4, d: 68 }
   });
 
   // PART 11: MẶT SAU & 4 VÍT LIÊN KẾT (150 x 110 x 16 mm)
@@ -1050,7 +1058,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     partsList,
     crank: crankGroup,
     gears: [gearLargeGroup, gearMedGroup, gearSmallGroup],
-    knob: knobGroup,
+    feet: feetGroup,
     topFlapMesh,
     bottomFlapMesh,
     splitCardTextures,

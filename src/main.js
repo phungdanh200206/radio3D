@@ -80,7 +80,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.22;
+renderer.toneMappingExposure = 1.05;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 container.appendChild(renderer.domElement);
@@ -107,11 +107,11 @@ controls.maxDistance = 650;
 controls.target.set(0, 0, 0);
 
 // 3. Studio Lighting Rig (Default: Light Mode)
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.05);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
 scene.add(ambientLight);
 
 // Key Light (Warm Sunlight)
-const keyLight = new THREE.DirectionalLight(0xfff8ee, 2.5);
+const keyLight = new THREE.DirectionalLight(0xfff8ee, 1.85);
 keyLight.position.set(160, 240, 180);
 keyLight.castShadow = true;
 keyLight.shadow.mapSize.width = 2048;
@@ -127,12 +127,12 @@ keyLight.shadow.camera.bottom = -shadowRange;
 scene.add(keyLight);
 
 // Fill Light
-const fillLight = new THREE.DirectionalLight(0xecfdf5, 1.2);
+const fillLight = new THREE.DirectionalLight(0xecfdf5, 0.9);
 fillLight.position.set(-180, 100, -120);
 scene.add(fillLight);
 
 // Rim Light for Edge Highlights
-const rimLight = new THREE.DirectionalLight(0xfef3c7, 1.4);
+const rimLight = new THREE.DirectionalLight(0xfef3c7, 1.1);
 rimLight.position.set(0, -140, -180);
 scene.add(rimLight);
 
