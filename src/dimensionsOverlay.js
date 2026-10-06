@@ -45,12 +45,10 @@ export class CADDimensionsOverlay {
         { p1: new THREE.Vector3(-45, 37, 45), p2: new THREE.Vector3(-45, 55, 45), label: '18', offset: [-18, 0], type: 'linear' },
         // 8. Khoảng cách mép dưới: 20 mm
         { p1: new THREE.Vector3(-45, -55, 45), p2: new THREE.Vector3(-45, -35, 45), label: '20', offset: [-18, 0], type: 'linear' },
-        // 9. Băng cassette bên trong: 100 x 63 mm
-        { p1: new THREE.Vector3(-50, -22, 28), p2: new THREE.Vector3(50, -22, 28), label: '100 mm (Băng cassette)', offset: [0, 18], type: 'linear' },
+        // 9. Thẻ ảnh lật bên trong: 104 x 68 mm
+        { p1: new THREE.Vector3(-52, -22, 20), p2: new THREE.Vector3(52, -22, 20), label: '104 mm (Ảnh)', offset: [0, 18], type: 'linear' },
         // 10. Bo góc ngoài: R20
-        { p1: new THREE.Vector3(65, 45, 45), p2: new THREE.Vector3(88, 68, 45), label: 'R20 (Bo góc ngoài)', type: 'radius' },
-        // 11. Đường kính núm xoay bên hông: Ø35 mm
-        { p1: new THREE.Vector3(84, 0, 8), p2: new THREE.Vector3(112, 26, 8), label: 'Ø35 mm (Núm xoay)', type: 'diameter' }
+        { p1: new THREE.Vector3(65, 45, 45), p2: new THREE.Vector3(88, 68, 45), label: 'R20 (Bo góc ngoài)', type: 'radius' }
       ],
       back: [
         { p1: new THREE.Vector3(75, 55, -45), p2: new THREE.Vector3(-75, 55, -45), label: '150 mm', offset: [0, -28], type: 'linear' },
@@ -72,8 +70,7 @@ export class CADDimensionsOverlay {
         { p1: new THREE.Vector3(75, 40, 45), p2: new THREE.Vector3(75, 40, 29), label: '16', offset: [0, -18], type: 'linear' },
         { p1: new THREE.Vector3(75, 40, 29), p2: new THREE.Vector3(75, 40, -29), label: '58 mm (Lòng khoang)', offset: [0, -18], type: 'linear' },
         { p1: new THREE.Vector3(75, 40, -29), p2: new THREE.Vector3(75, 40, -45), label: '16', offset: [0, -18], type: 'linear' },
-        { p1: new THREE.Vector3(75, -30, 8), p2: new THREE.Vector3(93, -30, 8), label: '18 mm (Núm nhô ra)', offset: [0, 22], type: 'linear' },
-        { p1: new THREE.Vector3(84, -17.5, 8), p2: new THREE.Vector3(84, 17.5, 8), label: 'Ø35 mm', offset: [24, 0], type: 'linear' }
+        { p1: new THREE.Vector3(75, 0, 20), p2: new THREE.Vector3(113, 0, 20), label: '38 mm (Tay quay nhô ra)', offset: [0, 22], type: 'linear' }
       ]
     };
   }

@@ -724,21 +724,10 @@ function animate() {
 
   controls.update();
 
-  // Spin mechanical crank & gears when playing music
+  // Spin mechanical crank when playing music
   if (state.isPlaying && modelData) {
     if (modelData.crank) {
       modelData.crank.rotation.x -= delta * 1.5;
-    }
-
-    // Mechanical gears spin according to ratio
-    if (modelData.gears) {
-      if (modelData.gears[0]) modelData.gears[0].rotation.z += delta * 1.8;
-      if (modelData.gears[1]) modelData.gears[1].rotation.z -= delta * 1.8 * (26 / 18);
-      if (modelData.gears[2]) modelData.gears[2].rotation.z += delta * 1.8 * (26 / 12);
-    }
-
-    if (modelData.knob) {
-      modelData.knob.rotation.x = Math.sin(elapsedTime * 4) * 0.05;
     }
   }
 

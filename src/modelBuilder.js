@@ -245,20 +245,17 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     knobAccentMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.85, roughness: 0.3 });
   }
 
-  // ULTRA REALISTIC OPTICAL GLASS (High Clarity + Mirror Specular Gloss)
+  // ULTRA REALISTIC OPTICAL GLASS (100% Crystal Clear Transparency)
   const glassMaterial = new THREE.MeshPhysicalMaterial({
     color: 0xffffff,
-    transmission: 0.96, // Clear optical transmission allows cassette to be seen inside
-    opacity: 1.0,
     transparent: true,
-    roughness: 0.018, // Ultra smooth gloss
-    ior: 1.52, // Optical glass
-    metalness: 0.0,
-    reflectivity: 0.95,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.02,
-    envMapIntensity: 2.4, // Specular studio reflections
-    depthWrite: false // Crucial: allows cassette inside to render without depth clipping
+    opacity: 0.05, // Crystal clear transparent glass, 100% sharp photo behind
+    roughness: 0.0, // Zero haze, no cloudiness
+    metalness: 0.02,
+    reflectivity: 0.12,
+    clearcoat: 0.6,
+    clearcoatRoughness: 0.0,
+    depthWrite: false
   });
 
   const brassGearMaterial = new THREE.MeshStandardMaterial({
@@ -426,17 +423,6 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   slotInnerMesh.position.set(0, 0, 0);
   topLidGroup.add(slotInnerMesh);
 
-  // Brass accent latch at top center front rim (as shown in reference photo)
-  const brassLatchGeom = new THREE.BoxGeometry(10, 2.5, 5);
-  const brassLatchMat = new THREE.MeshStandardMaterial({
-    color: 0xd4af37, // Royal Brass Gold
-    metalness: 0.95,
-    roughness: 0.2
-  });
-  const brassLatchMesh = new THREE.Mesh(brassLatchGeom, brassLatchMat);
-  brassLatchMesh.position.set(0, 0, 42);
-  topLidGroup.add(brassLatchMesh);
-
   topLidGroup.position.set(0, 55, 0);
 
   registerPart({
@@ -472,24 +458,11 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   const micaMesh = new THREE.Mesh(micaGeom, glassMaterial);
   micaGroup.add(micaMesh);
 
-  // Specular sheen diagonal glint
-  const sheenGeom = new THREE.PlaneGeometry(116, 70);
-  const sheenMat = new THREE.MeshBasicMaterial({
-    map: glassSheen,
-    transparent: true,
-    opacity: 0.10,
-    blending: THREE.NormalBlending,
-    depthWrite: false
-  });
-  const sheenMesh = new THREE.Mesh(sheenGeom, sheenMat);
-  sheenMesh.position.set(0, 0, 1.6);
-  micaGroup.add(sheenMesh);
-
   // Chamfer border highlight line
   const micaBorderGeom = new THREE.EdgesGeometry(micaGeom, 30);
   const micaBorderLine = new THREE.LineSegments(
     micaBorderGeom,
-    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
+    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25 })
   );
   micaGroup.add(micaBorderLine);
 
@@ -503,7 +476,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     material: 'Thủy tinh quang học cao cấp (Optical Glass / Acrylic)',
     quantity: '1',
     dimensions: '118 × 72 × 3 mm (Bo góc R5)',
-    notes: 'Mặt kính thủy tinh cao cấp bảo vệ khoang máy, dày 3 mm, bo góc R5 mm. Độ truyền quang cao 96%, phản chiếu bóng gương chân thực, quan sát rõ ràng băng cassette bên trong.',
+    notes: 'Mặt kính quang học trong suốt bảo vệ khoang máy, dày 3 mm, bo góc R5 mm. Độ trong suốt cao, phản chiếu tự nhiên, quan sát rõ nét ảnh bên trong.',
     category: 'Cửa quan sát',
     explodedOffset: new THREE.Vector3(0, 0, 125),
     dimBox: { w: 118, h: 72, d: 3 }
@@ -787,161 +760,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   }
 
   // ==========================================
-  // INTERNAL MECHANISM ASSEMBLY
-  // ==========================================
-  const internalBracketGroup = new THREE.Group();
-  internalBracketGroup.name = 'KhungCoCauGroup';
-  const bracketGeom = new THREE.BoxGeometry(100, 70, 2);
-  const bracketMat = new THREE.MeshStandardMaterial({
-    map: brushedMetal,
-    color: 0xd0d4d8,
-    metalness: 0.9,
-    roughness: 0.25
-  });
-  const bracketMesh = new THREE.Mesh(bracketGeom, bracketMat);
-  internalBracketGroup.add(bracketMesh);
-
-  const pillarGeom = new THREE.CylinderGeometry(3, 3, 20, 16);
-  pillarGeom.rotateX(Math.PI / 2);
-  const p1 = new THREE.Mesh(pillarGeom, silverGearMaterial);
-  p1.position.set(-42, 28, 10);
-  internalBracketGroup.add(p1);
-  const p2 = p1.clone();
-  p2.position.set(42, 28, 10);
-  internalBracketGroup.add(p2);
-  const p3 = p1.clone();
-  p3.position.set(-42, -28, 10);
-  internalBracketGroup.add(p3);
-  const p4 = p1.clone();
-  p4.position.set(42, -28, 10);
-  internalBracketGroup.add(p4);
-
-  internalBracketGroup.position.set(0, 0, 4);
-
-  registerPart({
-    group: internalBracketGroup,
-    id: 'khung_co_cau',
-    stt: 12,
-    name: 'Khung vách cơ cấu & chi tiết phụ',
-    material: 'Thép mạ / Đồng thau kỹ thuật',
-    quantity: '1 bộ',
-    dimensions: '100 × 70 × 20 mm (Trụ đỡ, chốt, bạc lót)',
-    notes: 'Bộ khung vách đỡ cụm truyền động bánh răng và trục thép bên trong thân máy, đảm bảo độ đồng tâm quay theo mục 4 bản vẽ.',
-    category: 'Khung cơ khí',
-    explodedOffset: new THREE.Vector3(25, 0, 15),
-    dimBox: { w: 100, h: 70, d: 20 }
-  });
-
-  // PART 6: BÁNH RĂNG LỚN (Ø26 mm)
-  const gearLargeGroup = new THREE.Group();
-  gearLargeGroup.name = 'BanhRangLonGroup';
-  const gearLargeGeom = createGearGeometry(13, 22, 2.4, 3, 4);
-  const gearLargeMesh = new THREE.Mesh(gearLargeGeom, brassGearMaterial);
-  gearLargeGroup.add(gearLargeMesh);
-  gearLargeGroup.position.set(10, -5, 10);
-
-  registerPart({
-    group: gearLargeGroup,
-    id: 'banh_rang_lon',
-    stt: 6,
-    name: 'Bánh răng lớn',
-    material: 'Đồng thau nguyên khối (Brass)',
-    quantity: '1',
-    dimensions: 'Đường kính Ø26 mm, dày 4 mm (Lỗ trục Ø6 mm)',
-    notes: 'Bánh răng chủ động lớn Ø26 mm, 22 răng mô-đun chính xác, liên kết với cụm trục truyền động chính.',
-    category: 'Bộ truyền động',
-    explodedOffset: new THREE.Vector3(50, -10, 5),
-    dimBox: { w: 26, h: 26, d: 4 }
-  });
-
-  // PART 7: BÁNH RĂNG TRUNG GIAN (Ø18 mm)
-  const gearMedGroup = new THREE.Group();
-  gearMedGroup.name = 'BanhRangTrungGianGroup';
-  const gearMedGeom = createGearGeometry(9, 16, 2.0, 3, 4);
-  const gearMedMesh = new THREE.Mesh(gearMedGeom, silverGearMaterial);
-  gearMedGroup.add(gearMedMesh);
-  gearMedGroup.position.set(28, 8, 10);
-
-  registerPart({
-    group: gearMedGroup,
-    id: 'banh_rang_trung_gian',
-    stt: 7,
-    name: 'Bánh răng trung gian',
-    material: 'Thép mạ Chrome / Nhựa POM',
-    quantity: '1',
-    dimensions: 'Đường kính Ø18 mm, dày 4 mm (Lỗ trục Ø6 mm)',
-    notes: 'Bánh răng trung gian Ø18 mm, 16 răng, đảo chiều và truyền mô-men từ bánh răng lớn sang các bánh răng truyền động phụ.',
-    category: 'Bộ truyền động',
-    explodedOffset: new THREE.Vector3(75, 15, 5),
-    dimBox: { w: 18, h: 18, d: 4 }
-  });
-
-  // PART 8: BÁNH RĂNG NHỎ (Ø12 mm - 2 units)
-  const gearSmallGroup = new THREE.Group();
-  gearSmallGroup.name = 'BanhRangNhoGroup';
-
-  const gearSmallGeom1 = createGearGeometry(6, 12, 1.6, 2, 4);
-  const gearSmallMesh1 = new THREE.Mesh(gearSmallGeom1, brassGearMaterial);
-  gearSmallMesh1.position.set(0, 0, 0);
-  gearSmallGroup.add(gearSmallMesh1);
-
-  const gearSmallMesh2 = new THREE.Mesh(gearSmallGeom1, silverGearMaterial);
-  gearSmallMesh2.position.set(0, 14, 0);
-  gearSmallGroup.add(gearSmallMesh2);
-
-  gearSmallGroup.position.set(40, -10, 10);
-
-  registerPart({
-    group: gearSmallGroup,
-    id: 'banh_rang_nho',
-    stt: 8,
-    name: 'Bánh răng nhỏ',
-    material: 'Đồng thau & Thép mạ',
-    quantity: '2',
-    dimensions: 'Đường kính Ø12 mm (2 cái, Dày 4 mm)',
-    notes: 'Bộ 2 bánh răng nhỏ Ø12 mm với 12 răng, ăn khớp với trục quay cassette và cơ cấu điều tốc.',
-    category: 'Bộ truyền động',
-    explodedOffset: new THREE.Vector3(98, -8, 5),
-    dimBox: { w: 12, h: 26, d: 4 }
-  });
-
-  // PART 9: TRỤC TRUYỀN ĐỘNG (Ø6 mm, L=50 mm)
-  const shaftGroup = new THREE.Group();
-  shaftGroup.name = 'TrucThepGroup';
-
-  const shaftMidGeom = new THREE.CylinderGeometry(3, 3, 30, 24);
-  shaftMidGeom.rotateZ(Math.PI / 2);
-  const shaftMidMesh = new THREE.Mesh(shaftMidGeom, steelShaftMaterial);
-  shaftGroup.add(shaftMidMesh);
-
-  const shaftEndLGeom = new THREE.CylinderGeometry(2.5, 2.5, 10, 24);
-  shaftEndLGeom.rotateZ(Math.PI / 2);
-  const shaftEndLMesh = new THREE.Mesh(shaftEndLGeom, steelShaftMaterial);
-  shaftEndLMesh.position.set(-20, 0, 0);
-  shaftGroup.add(shaftEndLMesh);
-
-  const shaftEndRMesh = shaftEndLMesh.clone();
-  shaftEndRMesh.position.set(20, 0, 0);
-  shaftGroup.add(shaftEndRMesh);
-
-  shaftGroup.position.set(35, 0, 10);
-
-  registerPart({
-    group: shaftGroup,
-    id: 'truc_thep',
-    stt: 9,
-    name: 'Trục truyền động',
-    material: 'Thép không gỉ mạ bóng (Stainless Steel)',
-    quantity: '1',
-    dimensions: 'Đường kính Ø6 mm, Chiều dài 50 mm (10-30-10 mm)',
-    notes: 'Trục thép chính gia công tiện CNC chuẩn xác, chia bậc 10 - 30 - 10 mm, đảm bảo độ đồng tâm quay và chịu tải mô-men.',
-    category: 'Cơ khí chính xác',
-    explodedOffset: new THREE.Vector3(115, 0, 10),
-    dimBox: { w: 50, h: 6, d: 6 }
-  });
-
-  // ==========================================
-  // PART 10: BỘ 4 CHÂN ĐẾ ĐỆM CAO SU VIỀN ĐỒNG THAU (ANTI-SLIP FEET)
+  // PART 6: BỘ 4 CHÂN ĐẾ ĐỆM CAO SU VIỀN ĐỒNG THAU (ANTI-SLIP FEET)
   // ==========================================
   const feetGroup = new THREE.Group();
   feetGroup.name = 'ChanDeGroup';
@@ -980,7 +799,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   registerPart({
     group: feetGroup,
     id: 'chan_de',
-    stt: 10,
+    stt: 6,
     name: 'Bộ 4 chân đế đệm chống trượt',
     material: 'Cao su kỹ thuật đúc viền đồng thau CNC',
     quantity: '4',
@@ -991,7 +810,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     dimBox: { w: 126, h: 4, d: 68 }
   });
 
-  // PART 11: MẶT SAU & 4 VÍT LIÊN KẾT (150 x 110 x 16 mm)
+  // PART 7: MẶT SAU & 4 VÍT LIÊN KẾT (150 x 110 x 16 mm)
   const backCoverGroup = new THREE.Group();
   backCoverGroup.name = 'MatSauGroup';
 
@@ -1042,7 +861,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
   registerPart({
     group: backCoverGroup,
     id: 'mat_sau_vit',
-    stt: 11,
+    stt: 7,
     name: 'Mặt sau & 4 vít liên kết',
     material: 'Vỏ máy & 4 Vít thép M4',
     quantity: '1 nắp + 4 vít',
@@ -1057,7 +876,7 @@ export function buildCassettePlayerModel(activeTheme = 'oak') {
     rootGroup,
     partsList,
     crank: crankGroup,
-    gears: [gearLargeGroup, gearMedGroup, gearSmallGroup],
+    gears: [],
     feet: feetGroup,
     topFlapMesh,
     bottomFlapMesh,
