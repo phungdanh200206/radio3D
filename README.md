@@ -94,5 +94,4 @@ Thư mục sản phẩm sau khi build sẽ nằm trong `dist/`.
 ## 📄 Bản Quyền & Thông Tin Thiết Kế
 - **Dự án**: Mô hình 3D Marketing Sản phẩm "Máy Phát Băng Cassette Mini"
 - **Bản vẽ kỹ thuật**: MB-001
-- **Thiết kế CAD**: Bùi Thị Bảo Ngọc
 - **Repository**: [https://github.com/phungdanh200206/radio3D](https://github.com/phungdanh200206/radio3D)
